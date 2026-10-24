@@ -1,0 +1,608 @@
+### 
+http://localhost:4004//odata/v4/catalog/DepartmentSrv
+Authorization: Basic admin:admin
+
+### Department 1
+POST http://localhost:4004/odata/v4/catalog/DepartmentSrv
+Authorization: Basic admin:admin
+Content-Type: application/json
+
+{
+    "dept_ID": "11111111-1111-1111-1111-111111111111",
+    "name": "Information Technology",
+    "costCenter": "IT001"
+}
+
+### Department 2
+POST http://localhost:4004/odata/v4/catalog/DepartmentSrv
+Authorization: Basic admin:admin
+Content-Type: application/json
+
+{
+    "dept_ID": "22222222-2222-2222-2222-222222222222",
+    "name": "Human Resources",
+    "costCenter": "HR001"
+}
+
+### Department 3
+POST http://localhost:4004/odata/v4/catalog/DepartmentSrv
+Authorization: Basic admin:admin
+Content-Type: application/json
+
+{
+    "dept_ID": "33333333-3333-3333-3333-333333333333",
+    "name": "Finance",
+    "costCenter": "FIN001"
+}
+
+### Department 4
+POST http://localhost:4004/odata/v4/catalog/DepartmentSrv
+Authorization: Basic admin:admin
+Content-Type: application/json
+
+{
+    "dept_ID": "44444444-4444-4444-4444-444444444444",
+    "name": "Procurement",
+    "costCenter": "PROC001"
+}
+
+### Department 5
+POST http://localhost:4004/odata/v4/catalog/DepartmentSrv
+Authorization: Basic admin:admin
+Content-Type: application/json
+
+{
+    "dept_ID": "55555555-5555-5555-5555-555555555555",
+    "name": "Sales",
+    "costCenter": "SAL001"
+}
+
+### 
+http://localhost:4004//odata/v4/catalog/EmployeeSrv
+Authorization: Basic admin:admin
+
+### Employee 1
+POST http://localhost:4004/odata/v4/catalog/EmployeeSrv
+Authorization: Basic admin:admin
+Content-Type: application/json
+
+{
+    "employee_ID": "8afbcd24-138c-4c1f-9f00-936b03cfb81e",
+    "fullName": "John Smith",
+    "email": "john.smith@company.com",
+    "phone": "+919876543210",
+    "location": "Bangalore",
+    "status": "Active",
+    "department_dept_ID": "11111111-1111-1111-1111-111111111111"
+}
+
+### Employee 2
+POST http://localhost:4004/odata/v4/catalog/EmployeeSrv
+Authorization: Basic admin:admin
+Content-Type: application/json
+
+{
+    "employee_ID": "23dff56c-3a94-4a24-b9fb-2b3fedaa2534",
+    "fullName": "Priya Sharma",
+    "email": "priya.sharma@company.com",
+    "phone": "+919876543211",
+    "location": "Hyderabad",
+    "status": "Active",
+    "department_dept_ID": "22222222-2222-2222-2222-222222222222"
+}
+
+### Employee 3
+POST http://localhost:4004/odata/v4/catalog/EmployeeSrv
+Authorization: Basic admin:admin
+Content-Type: application/json
+
+{
+    "employee_ID": "12ad8f3c-a3aa-4c28-a973-dff8600e45cd",
+    "fullName": "Rahul Kumar",
+    "email": "rahul.kumar@company.com",
+    "phone": "+919876543212",
+    "location": "Chennai",
+    "status": "Active",
+    "department_dept_ID": "33333333-3333-3333-3333-333333333333"
+}
+
+### Employee 4
+POST http://localhost:4004/odata/v4/catalog/EmployeeSrv
+Authorization: Basic admin:admin
+Content-Type: application/json
+
+{
+    "employee_ID": "4bd842c1-4b29-4242-917a-80c39eb60923",
+    "fullName": "Anjali Reddy",
+    "email": "anjali.reddy@company.com",
+    "phone": "+919876543213",
+    "location": "Pune",
+    "status": "Inactive",
+    "department_dept_ID": "44444444-4444-4444-4444-444444444444"
+}
+
+### Employee 5
+POST http://localhost:4004/odata/v4/catalog/EmployeeSrv
+Authorization: Basic admin:admin
+Content-Type: application/json
+
+{
+    "employee_ID": "b8dbc3df-0ec0-4b9c-9a16-0f509b16320f",
+    "fullName": "Arjun Patel",
+    "email": "arjun.patel@company.com",
+    "phone": "+919876543214",
+    "location": "Mumbai",
+    "status": "Active",
+    "department_dept_ID": "55555555-5555-5555-5555-555555555555"
+}
+
+### Asset Category 1
+POST http://localhost:4004/odata/v4/catalog/AssetCategorieSrv
+Authorization: Basic admin:admin
+Content-Type: application/json
+
+{
+    "category_ID": "30bd16a6-0efa-4db3-8508-f423332b2f23",
+    "name": "Laptop",
+    "lifespanMonths": 36
+}
+
+### Asset Category 2
+POST http://localhost:4004/odata/v4/catalog/AssetCategorieSrv
+Authorization: Basic admin:admin
+Content-Type: application/json
+
+{
+    "category_ID": "9b2e888e-0383-4341-9955-40e970e8d80b",
+    "name": "Monitor",
+    "lifespanMonths": 60
+}
+
+### Asset Category 3
+POST http://localhost:4004/odata/v4/catalog/AssetCategorieSrv
+Authorization: Basic admin:admin
+Content-Type: application/json
+
+{
+    "category_ID": "3df53155-f784-4231-9460-465d3f1cca8e",
+    "name": "Mobile Phone",
+    "lifespanMonths": 24
+}
+
+### Asset Category 4
+POST http://localhost:4004/odata/v4/catalog/AssetCategorieSrv
+Authorization: Basic admin:admin
+Content-Type: application/json
+
+{
+    "category_ID": "9c280ecb-c0a6-4772-a3da-7072e3454370",
+    "name": "Tablet",
+    "lifespanMonths": 36
+}
+
+### Asset Category 5
+POST http://localhost:4004/odata/v4/catalog/AssetCategorieSrv
+Authorization: Basic admin:admin
+Content-Type: application/json
+
+{
+    "category_ID": "1c249e58-8eba-42bd-9c56-6fabaacab99d",
+    "name": "Printer",
+    "lifespanMonths": 72
+}
+
+### Vendor 1
+POST http://localhost:4004/odata/v4/catalog/VendorSrv
+Authorization: Basic admin:admin
+Content-Type: application/json
+
+{
+    "vendor_ID": "86171f4f-17fd-419a-82d9-1a4eea6f9f82",
+    "name": "Dell Technologies",
+    "email": "sales@dell.com"
+}
+
+### Vendor 2
+POST http://localhost:4004/odata/v4/catalog/VendorSrv
+Authorization: Basic admin:admin
+Content-Type: application/json
+
+{
+    "vendor_ID": "86171f4f-17fd-419a-82d9-1a4eea6f9f82",
+    "name": "HP Enterprise",
+    "email": "contact@hp.com"
+}
+
+### Vendor 3
+POST http://localhost:4004/odata/v4/catalog/VendorSrv
+Authorization: Basic admin:admin
+Content-Type: application/json
+
+{
+    "vendor_ID": "b344c3e7-dcba-49db-85b3-6e4906d65776",
+    "name": "Apple Business",
+    "email": "business@apple.com"
+}
+
+### Vendor 4
+POST http://localhost:4004/odata/v4/catalog/VendorSrv
+Authorization: Basic admin:admin
+Content-Type: application/json
+
+{
+    "vendor_ID": "45528110-42bf-4db9-9829-05936cea29fa",
+    "name": "Samsung Electronics",
+    "email": "enterprise@samsung.com"
+}
+
+### Vendor 5
+POST http://localhost:4004/odata/v4/catalog/VendorSrv
+Authorization: Basic admin:admin
+Content-Type: application/json
+
+{
+    "vendor_ID": "343b11ff-b348-42d9-bb35-fc403789fc6e",
+    "name": "Canon India",
+    "email": "sales@canon.co.in"
+}
+
+
+### Asset 1
+POST http://localhost:4004/odata/v4/catalog/AssetSrv
+Authorization: Basic admin:admin
+Content-Type: application/json
+
+{
+    "asset_ID": "6edb1c22-5654-40ee-b4e6-57bfc096ce3c",
+    "assetTag": "LAP-1001",
+    "serialNumber": "SN-LAP-1001",
+    "model": "Dell Latitude 5440",
+    "purchaseDate": "2025-01-15",
+    "purchaseCost": 85000.00,
+    "warrantyExpiry": "2028-01-15",
+    "firstDistributionDate": "2025-02-01",
+    "status": "Assigned",
+    "category_category_ID": "30bd16a6-0efa-4db3-8508-f423332b2f23",
+    "vendor_vendor_ID": "86171f4f-17fd-419a-82d9-1a4eea6f9f82",
+    "currentHolder_employee_ID": "8afbcd24-138c-4c1f-9f00-936b03cfb81e"
+}
+
+### Asset 2
+POST http://localhost:4004/odata/v4/catalog/AssetSrv
+Authorization: Basic admin:admin
+Content-Type: application/json
+
+{
+    "asset_ID": "07f60010-e502-44bc-a723-11b6479ce691",
+    "assetTag": "MON-1001",
+    "serialNumber": "SN-MON-1001",
+    "model": "Dell 24 Inch Monitor",
+    "purchaseDate": "2025-01-20",
+    "purchaseCost": 18000.00,
+    "warrantyExpiry": "2028-01-20",
+    "firstDistributionDate": "2025-02-05",
+    "status": "Assigned",
+    "category_category_ID": "9b2e888e-0383-4341-9955-40e970e8d80b",
+    "vendor_vendor_ID": "86171f4f-17fd-419a-82d9-1a4eea6f9f82",
+    "currentHolder_employee_ID": "23dff56c-3a94-4a24-b9fb-2b3fedaa2534"
+}
+
+### Asset 3
+POST http://localhost:4004/odata/v4/catalog/AssetSrv
+Authorization: Basic admin:admin
+Content-Type: application/json
+
+{
+    "asset_ID": "d8117363-9e97-461c-8880-eb99e3507643",
+    "assetTag": "MOB-1001",
+    "serialNumber": "SN-MOB-1001",
+    "model": "iPhone 15",
+    "purchaseDate": "2025-03-10",
+    "purchaseCost": 72000.00,
+    "warrantyExpiry": "2027-03-10",
+    "firstDistributionDate": "2025-03-15",
+    "status": "Assigned",
+    "category_category_ID": "3df53155-f784-4231-9460-465d3f1cca8e",
+    "vendor_vendor_ID": "b344c3e7-dcba-49db-85b3-6e4906d65776",
+    "currentHolder_employee_ID": "12ad8f3c-a3aa-4c28-a973-dff8600e45cd"
+}
+
+### Asset 4
+POST http://localhost:4004/odata/v4/catalog/AssetSrv
+Authorization: Basic admin:admin
+Content-Type: application/json
+
+{
+    "asset_ID": "8ce4db2d-a299-4675-8210-3b02c09383ff",
+    "assetTag": "TAB-1001",
+    "serialNumber": "SN-TAB-1001",
+    "model": "Samsung Galaxy Tab S9",
+    "purchaseDate": "2025-04-05",
+    "purchaseCost": 45000.00,
+    "warrantyExpiry": "2027-04-05",
+    "firstDistributionDate": "2025-04-10",
+    "status": "In Stock",
+    "category_category_ID": "9c280ecb-c0a6-4772-a3da-7072e3454370",
+    "vendor_vendor_ID": "45528110-42bf-4db9-9829-05936cea29fa",
+    "currentHolder_employee_ID": "4bd842c1-4b29-4242-917a-80c39eb60923"
+}
+
+### Asset 5
+POST http://localhost:4004/odata/v4/catalog/AssetSrv
+Authorization: Basic admin:admin
+Content-Type: application/json
+
+{
+    "asset_ID": "04193230-ab6c-4ac9-b492-f0226d8080c4",
+    "assetTag": "PRN-1001",
+    "serialNumber": "SN-PRN-1001",
+    "model": "HP LaserJet Pro",
+    "purchaseDate": "2025-05-12",
+    "purchaseCost": 25000.00,
+    "warrantyExpiry": "2028-05-12",
+    "firstDistributionDate": "2025-05-15",
+    "status": "Maintenance",
+    "category_category_ID": "1c249e58-8eba-42bd-9c56-6fabaacab99d",
+    "vendor_vendor_ID": "ac0305fb-4245-41b5-90b9-33af8b7aa673",
+    "currentHolder_employee_ID": "b8dbc3df-0ec0-4b9c-9a16-0f509b16320f"
+}
+
+### Ownership Ledger 1
+POST http://localhost:4004/odata/v4/catalog/OwnershipLedgerSrv
+Authorization: Basic admin:admin
+Content-Type: application/json
+
+{
+    "ledger_ID": "dc979844-af9e-4b40-b6cc-0ac0fc6b3832",
+    "asset_asset_ID": "6edb1c22-5654-40ee-b4e6-57bfc096ce3c",
+    "fromEmployee_employee_ID": "8afbcd24-138c-4c1f-9f00-936b03cfb81e",
+    "toEmployee_employee_ID": "23dff56c-3a94-4a24-b9fb-2b3fedaa2534",
+    "action": "Transfer",
+    "transitionDate": "2025-06-01",
+    "recordedBy_employee_ID": "12ad8f3c-a3aa-4c28-a973-dff8600e45cd",
+    "notes": "Laptop transferred from John Smith to Priya Sharma."
+}
+
+### Ownership Ledger 2
+POST http://localhost:4004/odata/v4/catalog/OwnershipLedgerSrv
+Authorization: Basic admin:admin
+Content-Type: application/json
+
+{
+    "ledger_ID": "6a02d660-4ccf-4dfa-8d12-bd9b72790abd",
+    "asset_asset_ID": "07f60010-e502-44bc-a723-11b6479ce691",
+    "fromEmployee_employee_ID": "23dff56c-3a94-4a24-b9fb-2b3fedaa2534",
+    "toEmployee_employee_ID": "12ad8f3c-a3aa-4c28-a973-dff8600e45cd",
+    "action": "Transfer",
+    "transitionDate": "2025-06-10",
+    "recordedBy_employee_ID": "4bd842c1-4b29-4242-917a-80c39eb60923",
+    "notes": "Monitor reassigned to Rahul Kumar."
+}
+
+### Ownership Ledger 3
+POST http://localhost:4004/odata/v4/catalog/OwnershipLedgerSrv
+Authorization: Basic admin:admin
+Content-Type: application/json
+
+{
+    "ledger_ID": "d14e9d58-fd50-4a5a-8e87-d20a4ff6e3a1",
+    "asset_asset_ID": "d8117363-9e97-461c-8880-eb99e3507643",
+    "fromEmployee_employee_ID": "12ad8f3c-a3aa-4c28-a973-dff8600e45cd",
+    "toEmployee_employee_ID": "4bd842c1-4b29-4242-917a-80c39eb60923",
+    "action": "Transfer",
+    "transitionDate": "2025-07-15",
+    "recordedBy_employee_ID": "b8dbc3df-0ec0-4b9c-9a16-0f509b16320f",
+    "notes": "Mobile device handed over to Anjali Reddy."
+}
+
+### Ownership Ledger 4
+POST http://localhost:4004/odata/v4/catalog/OwnershipLedgerSrv
+Authorization: Basic admin:admin
+Content-Type: application/json
+
+{
+    "ledger_ID": "569f4abc-178c-4c31-8e07-a7a5b8ef4e83",
+    "asset_asset_ID": "8ce4db2d-a299-4675-8210-3b02c09383ff",
+    "fromEmployee_employee_ID": "4bd842c1-4b29-4242-917a-80c39eb60923",
+    "toEmployee_employee_ID": "b8dbc3df-0ec0-4b9c-9a16-0f509b16320f",
+    "action": "Transfer",
+    "transitionDate": "2025-08-01",
+    "recordedBy_employee_ID": "8afbcd24-138c-4c1f-9f00-936b03cfb81e",
+    "notes": "Tablet transferred to Arjun Patel."
+}
+
+### Ownership Ledger 5
+POST http://localhost:4004/odata/v4/catalog/OwnershipLedgerSrv
+Authorization: Basic admin:admin
+Content-Type: application/json
+
+{
+    "ledger_ID": "185e9f2c-37cc-4b08-a632-c4892d49f990",
+    "asset_asset_ID": "04193230-ab6c-4ac9-b492-f0226d8080c4",
+    "fromEmployee_employee_ID": "b8dbc3df-0ec0-4b9c-9a16-0f509b16320f",
+    "toEmployee_employee_ID": "8afbcd24-138c-4c1f-9f00-936b03cfb81e",
+    "action": "Return",
+    "transitionDate": "2025-09-05",
+    "recordedBy_employee_ID": "23dff56c-3a94-4a24-b9fb-2b3fedaa2534",
+    "notes": "Printer returned to IT asset pool."
+}
+
+### Maintenance Record 1
+POST http://localhost:4004/odata/v4/catalog/MaintenanceRecordSrv
+Authorization: Basic admin:admin
+Content-Type: application/json
+
+{
+    "maintenance_ID": "06866bb3-b0dc-4921-ad9e-fd18416d6ae3",
+    "asset_asset_ID": "6edb1c22-5654-40ee-b4e6-57bfc096ce3c",
+    "type": "Preventive",
+    "reportedBy_employee_ID": "8afbcd24-138c-4c1f-9f00-936b03cfb81e",
+    "serviceVendor_vendor_ID": "86171f4f-17fd-419a-82d9-1a4eea6f9f82",
+    "reportedDate": "2025-06-05",
+    "completedDate": "2025-06-06",
+    "status": "Completed",
+    "outcome": "System cleaned and software updated",
+    "cost": 0.00,
+    "coveredByWarranty": true,
+    "nextDueDate": "2026-06-05",
+    "description": "Routine annual maintenance for Dell laptop."
+}
+
+### Maintenance Record 2
+POST http://localhost:4004/odata/v4/catalog/MaintenanceRecordSrv
+Authorization: Basic admin:admin
+Content-Type: application/json
+
+{
+    "maintenance_ID": "835eef5a-6ad0-47c0-a44f-17b0dd7d639e",
+    "asset_asset_ID": "07f60010-e502-44bc-a723-11b6479ce69",
+    "type": "Repair",
+    "reportedBy_employee_ID": "23dff56c-3a94-4a24-b9fb-2b3fedaa2534",
+    "serviceVendor_vendor_ID": "86171f4f-17fd-419a-82d9-1a4eea6f9f82",
+    "reportedDate": "2025-07-10",
+    "completedDate": "2025-07-12",
+    "status": "Completed",
+    "outcome": "Display cable replaced",
+    "cost": 3500.00,
+    "coveredByWarranty": true,
+    "nextDueDate": "2026-07-10",
+    "description": "Monitor screen flickering issue resolved."
+}
+
+### Maintenance Record 3
+POST http://localhost:4004/odata/v4/catalog/MaintenanceRecordSrv
+Authorization: Basic admin:admin
+Content-Type: application/json
+
+{
+    "maintenance_ID": "1e96aff3-521c-4ce4-b80c-854eb6c3dba5",
+    "asset_asset_ID": "d8117363-9e97-461c-8880-eb99e3507643",
+    "type": "Repair",
+    "reportedBy_employee_ID": "12ad8f3c-a3aa-4c28-a973-dff8600e45cd",
+    "serviceVendor_vendor_ID": "b344c3e7-dcba-49db-85b3-6e4906d65776",
+    "reportedDate": "2025-08-15",
+    "completedDate": "2025-08-18",
+    "status": "Completed",
+    "outcome": "Battery replaced",
+    "cost": 0.00,
+    "coveredByWarranty": true,
+    "nextDueDate": "2026-08-15",
+    "description": "Mobile phone battery health below acceptable level."
+}
+
+### Maintenance Record 4
+POST http://localhost:4004/odata/v4/catalog/MaintenanceRecordSrv
+Authorization: Basic admin:admin
+Content-Type: application/json
+
+{
+    "maintenance_ID": "15f205f6-6852-4057-9b9b-20358d1f9d09",
+    "asset_asset_ID": "8ce4db2d-a299-4675-8210-3b02c09383ff",
+    "type": "Inspection",
+    "reportedBy_employee_ID": "4bd842c1-4b29-4242-917a-80c39eb60923",
+    "serviceVendor_vendor_ID": "45528110-42bf-4db9-9829-05936cea29fa",
+    "reportedDate": "2025-09-01",
+    "completedDate": "2025-09-02",
+    "status": "Completed",
+    "outcome": "Device passed quality inspection",
+    "cost": 1000.00,
+    "coveredByWarranty": false,
+    "nextDueDate": "2026-09-01",
+    "description": "Periodic inspection of company tablet."
+}
+
+### Maintenance Record 5
+POST http://localhost:4004/odata/v4/catalog/MaintenanceRecordSrv
+Authorization: Basic admin:admin
+Content-Type: application/json
+
+{
+    "maintenance_ID": "e86e6d3f-dfb8-4b0a-a87d-75ce4d7ca3fe",
+    "asset_asset_ID": "04193230-ab6c-4ac9-b492-f0226d8080c4",
+    "type": "Repair",
+    "reportedBy_employee_ID": "b8dbc3df-0ec0-4b9c-9a16-0f509b16320f",
+    "serviceVendor_vendor_ID": "ac0305fb-4245-41b5-90b9-33af8b7aa673",
+    "reportedDate": "2025-10-10",
+    "completedDate": "2025-10-14",
+    "status": "Completed",
+    "outcome": "Printer roller assembly replaced",
+    "cost": 4500.00,
+    "coveredByWarranty": false,
+    "nextDueDate": "2026-10-10",
+    "description": "Paper jam issue resolved and printer serviced."
+}
+
+### Archive Record 1
+POST http://localhost:4004/odata/v4/catalog/ArchiveRecordSrv
+Authorization: Basic admin:admin
+Content-Type: application/json
+
+{
+    "archive_ID": "c836dbf3-926e-47cf-b1a1-25ab4d0e63b9",
+    "asset_asset_ID": "6edb1c22-5654-40ee-b4e6-57bfc096ce3c",
+    "archivedAt": "2025-12-01T10:00:00Z",
+    "archivedBy_employee_ID": "8afbcd24-138c-4c1f-9f00-936b03cfb81",
+    "reason": "Asset reached end of useful life",
+    "disposalMethod": "E-Waste Recycling",
+    "disposalCertNo": "CERT-2025-001"
+}
+
+### Archive Record 2
+POST http://localhost:4004/odata/v4/catalog/ArchiveRecordSrv
+Authorization: Basic admin:admin
+Content-Type: application/json
+
+{
+    "archive_ID": "207634ec-1ede-4a96-a7df-9706e641902c",
+    "asset_asset_ID": "07f60010-e502-44bc-a723-11b6479ce691",
+    "archivedAt": "2025-12-05T11:15:00Z",
+    "archivedBy_employee_ID": "23dff56c-3a94-4a24-b9fb-2b3fedaa2534",
+    "reason": "Hardware failure beyond repair",
+    "disposalMethod": "Vendor Buyback",
+    "disposalCertNo": "CERT-2025-002"
+}
+
+### Archive Record 3
+POST http://localhost:4004/odata/v4/catalog/ArchiveRecordSrv
+Authorization: Basic admin:admin
+Content-Type: application/json
+
+{
+    "archive_ID": "220d180c-3402-471d-aef8-bf53fb185f18",
+    "asset_asset_ID": "d8117363-9e97-461c-8880-eb99e3507643",
+    "archivedAt": "2025-12-10T09:30:00Z",
+    "archivedBy_employee_ID": "12ad8f3c-a3aa-4c28-a973-dff8600e45cd",
+    "reason": "Damaged during transportation",
+    "disposalMethod": "Scrapping",
+    "disposalCertNo": "CERT-2025-003"
+}
+
+### Archive Record 4
+POST http://localhost:4004/odata/v4/catalog/ArchiveRecordSrv
+Authorization: Basic admin:admin
+Content-Type: application/json
+
+{
+    "archive_ID": "0e21a2df-404c-4af1-92ad-e245c65a1ab1",
+    "asset_asset_ID": "8ce4db2d-a299-4675-8210-3b02c09383ff",
+    "archivedAt": "2025-12-15T14:45:00Z",
+    "archivedBy_employee_ID": "4bd842c1-4b29-4242-917a-80c39eb60923",
+    "reason": "Obsolete technology",
+    "disposalMethod": "Donation",
+    "disposalCertNo": "CERT-2025-004"
+}
+
+### Archive Record 5
+POST http://localhost:4004/odata/v4/catalog/ArchiveRecordSrv
+Authorization: Basic admin:admin
+Content-Type: application/json
+
+{
+    "archive_ID": "eb50238b-7820-4b2e-be62-d54cb9de91a9",
+    "asset_asset_ID": "04193230-ab6c-4ac9-b492-f0226d8080c4",
+    "archivedAt": "2025-12-20T16:00:00Z",
+    "archivedBy_employee_ID": "b8dbc3df-0ec0-4b9c-9a16-0f509b16320f",
+    "reason": "Replaced with newer model",
+    "disposalMethod": "Auction Sale",
+    "disposalCertNo": "CERT-2025-005"
+}

@@ -1,0 +1,8 @@
+<core:FragmentDefinition xmlns="sap.m" xmlns:core="sap.ui.core">
+    <ResponsivePopover title="{i18n>notifications}" placement="Bottom" contentWidth="24rem">
+        <List items="{my>/notifications}" noDataText="{i18n>noNotifications}">
+            <StandardListItem title="{my>title}" description="{my>desc}" icon="{my>icon}"
+                info="{my>time}" infoState="{my>state}" wrapping="true"/>
+        </List>
+    </ResponsivePopover>
+</core:FragmentDefinition>

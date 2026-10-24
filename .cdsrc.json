@@ -1,0 +1,75 @@
+{
+  "requires": {
+    "[development]": {
+      "auth": {
+        "kind": "mocked",
+        "users": {
+          "admin": {
+            "password": "admin",
+            "roles": [
+              "Admin"
+            ]
+          },
+          "manager": {
+            "password": "manager",
+            "roles": [
+              "Manager"
+            ]
+          },
+          "john.smith@company.com": {
+            "password": "user",
+            "roles": [
+              "User"
+            ]
+          },
+          "alice": false,
+          "bob": false,
+          "carol": false,
+          "dave": false,
+          "erin": false,
+          "fred": false,
+          "me": false,
+          "yves": false,
+          "*": false
+        }
+      }
+    },
+    "[hybrid]": {
+      "auth": {
+        "kind": "mocked",
+        "users": {
+          "admin": {
+            "password": "admin",
+            "roles": [
+              "Admin"
+            ]
+          },
+          "manager": {
+            "password": "manager",
+            "roles": [
+              "Manager"
+            ]
+          },
+          "john.smith@company.com": {
+            "password": "user",
+            "roles": [
+              "User"
+            ]
+          },
+          "alice": false,
+          "bob": false,
+          "carol": false,
+          "dave": false,
+          "erin": false,
+          "fred": false,
+          "me": false,
+          "yves": false,
+          "*": false
+        }
+      }
+    },
+    "[production]": {
+      "auth": "xsuaa"
+    }
+  }
+}

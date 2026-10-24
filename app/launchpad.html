@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IT Asset Lifecycle Manager</title>
+    <script>
+        window["sap-ushell-config"] = {
+            defaultRenderer: "fiori2",
+            renderers: { fiori2: { componentData: { config: { search: "hidden" } } } },
+            applications: {
+                "Assets-manage":      { title: "Hardware Assets",      description: "Inventory and lifecycle", additionalInformation: "SAPUI5.Component=assets",      applicationType: "URL", url: "/assets",      navigationMode: "embedded" },
+                "Employees-manage":   { title: "Employees",            description: "Employee master",         additionalInformation: "SAPUI5.Component=employees",   applicationType: "URL", url: "/employees",   navigationMode: "embedded" },
+                "Departments-manage": { title: "Departments",          description: "Department master",       additionalInformation: "SAPUI5.Component=departments", applicationType: "URL", url: "/departments", navigationMode: "embedded" },
+                "Categories-manage":  { title: "Categories",           description: "Asset categories",        additionalInformation: "SAPUI5.Component=categories",  applicationType: "URL", url: "/categories",  navigationMode: "embedded" },
+                "Vendors-manage":     { title: "Vendors",              description: "Vendor master",           additionalInformation: "SAPUI5.Component=vendors",     applicationType: "URL", url: "/vendors",     navigationMode: "embedded" },
+                "Maintenance-manage": { title: "Maintenance",          description: "Service records",         additionalInformation: "SAPUI5.Component=maintenance", applicationType: "URL", url: "/maintenance", navigationMode: "embedded" },
+                "Archive-manage":     { title: "Retirement & Archive", description: "Archived assets",         additionalInformation: "SAPUI5.Component=archive",     applicationType: "URL", url: "/archive",     navigationMode: "embedded" },
+                "Dashboard-display":  { title: "Asset Lifecycle Dashboard", description: "KPIs and reports", additionalInformation: "SAPUI5.Component=dashboard", applicationType: "URL", url: "/dashboard", navigationMode: "embedded" },
+                "ManagerDashboard-display": { title: "Manager Dashboard", description: "KPIs, reports and notifications", additionalInformation: "SAPUI5.Component=managerdashboard", applicationType: "URL", url: "/managerdashboard", navigationMode: "embedded" },
+                "MyAssets-display":   { title: "My Assets",            description: "Hardware assigned to me", additionalInformation: "SAPUI5.Component=userdashboard", applicationType: "URL", url: "/userdashboard", navigationMode: "embedded" }
+            }
+        };
+    </script>
+    <script src="https://ui5.sap.com/test-resources/sap/ushell/bootstrap/sandbox.js"></script>
+    <script id="sap-ui-bootstrap"
+            src="https://ui5.sap.com/resources/sap-ui-core.js"
+            data-sap-ui-libs="sap.m, sap.ushell, sap.ui.layout"
+            data-sap-ui-compatVersion="edge"
+            data-sap-ui-async="true"
+            data-sap-ui-frameOptions="allow"></script>
+    <script>
+        sap.ui.getCore().attachInit(function () {
+            sap.ushell.Container.createRenderer().placeAt("content");
+        });
+    </script>
+</head>
+<body class="sapUiBody" id="content"></body>
+</html>
+ 

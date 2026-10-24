@@ -1,0 +1,126 @@
+<mvc:View controllerName="userdashboard.controller.MyAssets"
+    xmlns:mvc="sap.ui.core.mvc" xmlns="sap.m" xmlns:core="sap.ui.core" displayBlock="true">
+    <Page id="myAssetsPage" title="{i18n>appTitle}" busy="{my>/busy}" busyIndicatorDelay="0">
+        <headerContent>
+            <Select id="langSelect" selectedKey="{my>/language}" change=".onLanguageChange" width="8rem"
+                tooltip="{i18n>language}" class="sapUiTinyMarginEnd">
+                <core:Item key="en" text="English"/>
+                <core:Item key="de" text="Deutsch"/>
+            </Select>
+            <Button icon="sap-icon://refresh" tooltip="{i18n>refresh}" press=".onRefresh"/>
+            <Button id="notifButton" icon="sap-icon://bell" tooltip="{i18n>notifications}" press=".onOpenNotifications">
+                <customData>
+                    <BadgeCustomData key="badge" value="{my>/notifCount}" visible="{= ${my>/notifCount} !== '0' }"/>
+                </customData>
+            </Button>
+        </headerContent>
+        <content>
+            <VBox class="sapUiSmallMargin">
+
+                <VBox class="sapUiSmallMarginBottom">
+                    <Text text="{i18n>eyebrow}" class="myEyebrow"/>
+                    <Title text="{i18n>pageTitle}" level="H1" titleStyle="H2"/>
+                    <Text text="{i18n>pageSubtitle}"/>
+                </VBox>
+
+                <MessageStrip text="{my>/error}" type="Error" showIcon="true"
+                    visible="{= !!${my>/error} }" class="sapUiSmallMarginBottom"/>
+
+                <Panel class="sapUiSmallMarginBottom myWelcome">
+                    <FlexBox justifyContent="SpaceBetween" alignItems="Center" wrap="Wrap">
+                        <HBox alignItems="Center" class="sapUiTinyMarginBottom">
+                            <Avatar initials="{my>/me/initials}" displaySize="M" class="sapUiSmallMarginEnd"/>
+                            <VBox>
+                                <Title text="{= ${my>/me/fullName} ? ${i18n>welcome} + ', ' + ${my>/me/firstName} : ${i18n>welcome} }" level="H2" titleStyle="H4"/>
+                                <Text text="{my>/me/subtitle}" visible="{= !!${my>/me/subtitle} }"/>
+                            </VBox>
+                        </HBox>
+                        <ObjectStatus text="{i18n>readOnly}" icon="sap-icon://locked" state="Information" inverted="true"
+                            class="sapUiTinyMarginBottom"/>
+                    </FlexBox>
+                </Panel>
+
+                <HBox wrap="Wrap" class="sapUiSmallMarginBottom">
+                    <GenericTile header="{i18n>kpiAssigned}" press=".onClear" class="sapUiTinyMarginEnd sapUiTinyMarginBottom">
+                        <TileContent><NumericContent value="{my>/kpi/assigned}" valueColor="Neutral" withMargin="false"/></TileContent>
+                    </GenericTile>
+                    <GenericTile header="{i18n>kpiService}" press=".onKpiServicePress" class="sapUiTinyMarginEnd sapUiTinyMarginBottom">
+                        <TileContent><NumericContent value="{my>/kpi/openService}" valueColor="{= ${my>/kpi/openService} > 0 ? 'Critical' : 'Good' }" withMargin="false"/></TileContent>
+                    </GenericTile>
+                    <GenericTile header="{i18n>kpiLastAssignment}" class="sapUiTinyMarginEnd sapUiTinyMarginBottom">
+                        <TileContent><Text text="{my>/kpi/lastAssignment}" class="myTileText"/></TileContent>
+                    </GenericTile>
+                </HBox>
+
+                <Panel expandable="true" expanded="true" class="sapUiSmallMarginBottom">
+                    <headerToolbar>
+                        <OverflowToolbar>
+                            <Title text="{i18n>filtersTitle}"/>
+                            <Text text="{i18n>filtersHint}"/>
+                            <ToolbarSpacer/>
+                            <Button text="{i18n>clear}" type="Transparent" press=".onClear"/>
+                        </OverflowToolbar>
+                    </headerToolbar>
+                    <content>
+                        <HBox wrap="Wrap">
+                            <VBox class="sapUiSmallMarginEnd sapUiTinyMarginBottom">
+                                <Label text="{i18n>searchLabel}"/>
+                                <SearchField value="{my>/filters/search}" liveChange=".onFilterChange" search=".onFilterChange"
+                                    placeholder="{i18n>searchPlaceholder}" width="20rem"/>
+                            </VBox>
+                            <VBox class="sapUiSmallMarginEnd sapUiTinyMarginBottom">
+                                <Label text="{i18n>colStatus}"/>
+                                <Select selectedKey="{my>/filters/status}" items="{my>/options/statuses}"
+                                    change=".onFilterChange" width="12rem">
+                                    <core:Item key="{my>key}" text="{my>text}"/>
+                                </Select>
+                            </VBox>
+                            <VBox class="sapUiSmallMarginEnd sapUiTinyMarginBottom">
+                                <Label text="{i18n>colCategory}"/>
+                                <Select selectedKey="{my>/filters/category}" items="{my>/options/categories}"
+                                    change=".onFilterChange" width="12rem">
+                                    <core:Item key="{my>key}" text="{my>text}"/>
+                                </Select>
+                            </VBox>
+                        </HBox>
+                    </content>
+                </Panel>
+
+                <Table id="assetTable" items="{my>/rows}" noDataText="{= ${my>/employeeId} ? ${i18n>noAssets} : ${my>/noProfile} }"
+                    class="sapUiSmallMarginBottom">
+                    <headerToolbar>
+                        <OverflowToolbar>
+                            <Title text="{= ${i18n>tableTitle} + ' (' + ${my>/rows}.length + ')' }"/>
+                        </OverflowToolbar>
+                    </headerToolbar>
+                    <columns>
+                        <Column><Text text="{i18n>colAsset}"/></Column>
+                        <Column minScreenWidth="Tablet" demandPopin="true"><Text text="{i18n>colSerial}"/></Column>
+                        <Column minScreenWidth="Tablet" demandPopin="true"><Text text="{i18n>colCategory}"/></Column>
+                        <Column><Text text="{i18n>colStatus}"/></Column>
+                        <Column minScreenWidth="Desktop" demandPopin="true"><Text text="{i18n>colLocation}"/></Column>
+                        <Column minScreenWidth="Desktop" demandPopin="true"><Text text="{i18n>colWarranty}"/></Column>
+                    </columns>
+                    <items>
+                        <ColumnListItem type="Navigation" press=".onAssetPress">
+                            <cells>
+                                <ObjectIdentifier title="{my>assetTag}" text="{my>model}"/>
+                                <Text text="{my>serialNumber}"/>
+                                <Text text="{my>_category}"/>
+                                <ObjectStatus text="{my>_statusText}" state="{my>_statusState}" icon="{my>_statusIcon}"/>
+                                <Text text="{my>_location}"/>
+                                <Text text="{my>_warranty}"/>
+                            </cells>
+                        </ColumnListItem>
+                    </items>
+                    <infoToolbar>
+                        <OverflowToolbar visible="{= ${my>/rows}.length > 0 }">
+                            <Text text="{i18n>tableHint}"/>
+                        </OverflowToolbar>
+                    </infoToolbar>
+                </Table>
+
+            </VBox>
+        </content>
+    </Page>
+</mvc:View>

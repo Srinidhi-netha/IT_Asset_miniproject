@@ -1,0 +1,46 @@
+{
+  "name": "it_asset",
+  "version": "1.0.0",
+  "description": "Welcome to your new CAP project.",
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "cds-serve",
+    "watch-assets": "cds watch --open assets/index.html?sap-ui-xx-viewCache=false --livereload false",
+    "watch-employees": "cds watch --open employees/index.html?sap-ui-xx-viewCache=false --livereload false",
+    "watch-departments": "cds watch --open departments/index.html?sap-ui-xx-viewCache=false --livereload false",
+    "watch-categories": "cds watch --open categories/index.html?sap-ui-xx-viewCache=false --livereload false",
+    "watch-vendors": "cds watch --open vendors/index.html?sap-ui-xx-viewCache=false --livereload false",
+    "watch-maintenance": "cds watch --open maintenance/index.html?sap-ui-xx-viewCache=false --livereload false",
+    "watch-archive": "cds watch --open archive/index.html?sap-ui-xx-viewCache=false --livereload false",
+    "watch-dashboard": "cds watch --open dashboard/index.html?sap-ui-xx-viewCache=false --livereload false",
+    "watch-managerdashboard": "cds watch --open managerdashboard/index.html?sap-ui-xx-viewCache=false --livereload false",
+    "watch-userdashboard": "cds watch --open userdashboard/index.html?sap-ui-xx-viewCache=false --livereload false"
+  },
+  "dependencies": {
+    "@cap-js/hana": "^3.1.2",
+    "@sap/cds": "^10",
+    "@sap/cds-dk": "^10.1.0",
+    "@sap/xssec": "^4.15.0"
+  },
+  "devDependencies": {
+    "@cap-js/sqlite": "^3",
+    "cds-plugin-ui5": "^0.17.0"
+  },
+  "private": true,
+  "workspaces": [
+    "app/*"
+  ],
+  "sapux": [
+    "app/assets",
+    "app/employees",
+    "app/departments",
+    "app/categories",
+    "app/vendors",
+    "app/maintenance",
+    "app/archive"
+  ]
+}

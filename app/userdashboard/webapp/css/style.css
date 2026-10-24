@@ -1,0 +1,16 @@
+.myEyebrow {
+    font-size: 0.75rem;
+    font-weight: bold;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--sapContent_LabelColor);
+}
+
+.myWelcome.sapMPanel > .sapMPanelContent {
+    background: var(--sapInformationBackgroundColor);
+}
+
+.myTileText.sapMText {
+    font-size: 1.25rem;
+    padding-top: 0.5rem;
+}

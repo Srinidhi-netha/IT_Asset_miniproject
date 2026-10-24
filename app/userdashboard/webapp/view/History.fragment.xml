@@ -1,0 +1,62 @@
+<core:FragmentDefinition xmlns="sap.m" xmlns:core="sap.ui.core">
+    <Dialog title="{= ${i18n>historyTitle} + ' ' + ${my>/history/assetTag} }" contentWidth="44rem" resizable="true"
+        draggable="true" busy="{my>/history/busy}" busyIndicatorDelay="0">
+        <content>
+            <VBox class="sapUiSmallMargin">
+                <ObjectHeader title="{my>/history/model}" number="{my>/history/statusText}" condensed="true">
+                    <attributes>
+                        <ObjectAttribute title="{i18n>colSerial}" text="{my>/history/serialNumber}"/>
+                        <ObjectAttribute title="{i18n>colCategory}" text="{my>/history/category}"/>
+                    </attributes>
+                </ObjectHeader>
+
+                <Title text="{i18n>ownershipTitle}" level="H3" class="sapUiSmallMarginTop sapUiTinyMarginBottom"/>
+                <Table items="{my>/history/ledger}" noDataText="{i18n>noHistory}">
+                    <columns>
+                        <Column><Text text="{i18n>colDate}"/></Column>
+                        <Column><Text text="{i18n>colAction}"/></Column>
+                        <Column minScreenWidth="Tablet" demandPopin="true"><Text text="{i18n>colFrom}"/></Column>
+                        <Column minScreenWidth="Tablet" demandPopin="true"><Text text="{i18n>colTo}"/></Column>
+                        <Column minScreenWidth="Desktop" demandPopin="true"><Text text="{i18n>colNotes}"/></Column>
+                    </columns>
+                    <items>
+                        <ColumnListItem>
+                            <cells>
+                                <Text text="{my>date}"/>
+                                <Text text="{my>action}"/>
+                                <Text text="{my>from}"/>
+                                <Text text="{my>to}"/>
+                                <Text text="{my>notes}"/>
+                            </cells>
+                        </ColumnListItem>
+                    </items>
+                </Table>
+
+                <Title text="{i18n>maintenanceTitle}" level="H3" class="sapUiSmallMarginTop sapUiTinyMarginBottom"/>
+                <Table items="{my>/history/maintenance}" noDataText="{i18n>noMaintenance}">
+                    <columns>
+                        <Column><Text text="{i18n>colReported}"/></Column>
+                        <Column><Text text="{i18n>colType}"/></Column>
+                        <Column><Text text="{i18n>colStatus}"/></Column>
+                        <Column minScreenWidth="Tablet" demandPopin="true"><Text text="{i18n>colCompleted}"/></Column>
+                        <Column minScreenWidth="Desktop" demandPopin="true"><Text text="{i18n>colOutcome}"/></Column>
+                    </columns>
+                    <items>
+                        <ColumnListItem>
+                            <cells>
+                                <Text text="{my>reported}"/>
+                                <Text text="{my>type}"/>
+                                <Text text="{my>status}"/>
+                                <Text text="{my>completed}"/>
+                                <Text text="{my>outcome}"/>
+                            </cells>
+                        </ColumnListItem>
+                    </items>
+                </Table>
+            </VBox>
+        </content>
+        <endButton>
+            <Button text="{i18n>close}" press=".onCloseHistory"/>
+        </endButton>
+    </Dialog>
+</core:FragmentDefinition>
