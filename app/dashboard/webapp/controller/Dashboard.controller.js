@@ -3,8 +3,10 @@ sap.ui.define([
     "sap/ui/model/json/JSONModel",
     "sap/ui/core/format/NumberFormat",
     "sap/base/i18n/Localization",
-    "sap/m/library"
-], function (Controller, JSONModel, NumberFormat, Localization, mobileLibrary) {
+    "sap/m/library",
+    "sap/m/MessageBox",
+    "sap/m/MessageToast"
+], function (Controller, JSONModel, NumberFormat, Localization, mobileLibrary, MessageBox, MessageToast) {
     "use strict";
 
     var DAY = 24 * 60 * 60 * 1000;
@@ -42,17 +44,21 @@ sap.ui.define([
                 filters: { status: "", category: "", location: "", department: "", from: null, to: null },
                 options: { statuses: [], categories: [], locations: [], departments: [] },
                 kpi: {}, kpiText: {},
-                statusSegments: [], segmentCount: 1,
+                statusSegments: [], segmentCount: 1, donutHtml: "",
                 categoryBars: [], barCount: 1,
                 departmentBars: [], deptBarCount: 1,
                 maintTypeBars: [], maintBarCount: 1,
-                attention: [], apps: [], summary: []
+                attention: [], apps: [], summary: [], requests: [], pendingRequests: 0
             }), "dash");
 
             // getResourceBundle() returns a Promise when the i18n model is loaded async
             Promise.resolve(this.getOwnerComponent().getModel("i18n").getResourceBundle()).then(function (bundle) {
                 that._bundle = bundle;
                 that._load();
+                // Keep the Admin request badge current while the dashboard remains open.
+                that._requestPoll = window.setInterval(function () {
+                    that._refreshRequestList(false);
+                }, 30000);
             });
         },
 
@@ -101,7 +107,8 @@ sap.ui.define([
                 soft(this._get("DepartmentSrv?$select=dept_ID,name&$top=1000")),
                 soft(this._get("VendorSrv?$select=vendor_ID&$top=1000")),
                 soft(this._get("MaintenanceRecordSrv?$select=maintenance_ID,asset_asset_ID,type,reportedDate,status,cost&$top=5000")),
-                soft(this._get("ArchiveRecordSrv?$select=archive_ID&$top=5000"))
+                soft(this._get("ArchiveRecordSrv?$select=archive_ID&$top=5000")),
+                soft(this._get("AssetRequestOverviewSrv?$select=request_ID,requestNo,status,justification,neededBy,createdAt,requestedBy,decidedAt,rejectionReason,employeeName,employeeEmail,employeeDepartment,assetTag,assetModel&$orderby=createdAt desc&$top=500"))
             ]).then(function (res) {
                 var cats = {}, emps = {}, depts = {};
                 var none = that._t("unassigned");
@@ -117,6 +124,7 @@ sap.ui.define([
                     return a;
                 });
                 that._maintenance = res[5];
+                that._setRequests(res[7]);
                 that._masters = {
                     employees: res[2].length,
                     activeEmployees: res[2].filter(function (e) { return String(e.status).toLowerCase() === "active"; }).length,
@@ -134,6 +142,104 @@ sap.ui.define([
             }).finally(function () {
                 model.setProperty("/busy", false);
             });
+        },
+
+        _setRequests: function (list) {
+            var rows = (list || []).map(function (r) {
+                var state = r.status === "Approved" ? "Success" : (r.status === "Rejected" ? "Error" : "Warning");
+                return {
+                    request_ID: r.request_ID, requestNo: r.requestNo || "", status: r.status || "Pending", state: state,
+                    employeeName: r.employeeName || "", employeeEmail: r.employeeEmail || "", department: r.employeeDepartment || "",
+                    asset: [r.assetTag, r.assetModel].filter(Boolean).join(" - "), neededBy: r.neededBy || "",
+                    createdAt: r.createdAt ? new Date(r.createdAt).toLocaleString() : "", justification: r.justification || "",
+                    rejectionReason: r.rejectionReason || "", canDecide: r.status === "Pending"
+                };
+            });
+            var m = this.getView().getModel("dash");
+            m.setProperty("/requests", rows);
+            m.setProperty("/pendingRequests", rows.filter(function (r) { return r.status === "Pending"; }).length);
+        },
+
+        _post: function (path, body) {
+            var url = this._serviceUrl();
+            return fetch(url, { method: "HEAD", headers: { "X-CSRF-Token": "Fetch" }, credentials: "same-origin" })
+                .then(function (r) { return r.headers.get("X-CSRF-Token") || ""; })
+                .catch(function () { return ""; })
+                .then(function (token) {
+                    var headers = { "Content-Type": "application/json", "Accept": "application/json" };
+                    if (token) { headers["X-CSRF-Token"] = token; }
+                    return fetch(url + path, { method: "POST", headers: headers, credentials: "same-origin", body: JSON.stringify(body || {}) });
+                })
+                .then(function (r) {
+                    if (!r.ok) {
+                        return r.text().then(function (t) {
+                            var msg = t;
+                            try { msg = JSON.parse(t).error.message; } catch (e) { /* use response text */ }
+                            throw new Error(msg || ("HTTP " + r.status));
+                        });
+                    }
+                    return r.text().then(function (t) { if (!t) { return {}; } try { return JSON.parse(t); } catch (e) { return {}; } });
+                });
+        },
+
+        onApproveRequest: function (oEvent) {
+            var row = oEvent.getSource().getBindingContext("dash").getObject(), that = this;
+            MessageBox.confirm("Approve " + row.requestNo + " and assign " + row.asset + " to " + row.employeeName + "?", {
+                title: "Approve asset request", actions: [MessageBox.Action.OK, MessageBox.Action.CANCEL],
+                emphasizedAction: MessageBox.Action.OK,
+                onClose: function (action) { if (action === MessageBox.Action.OK) { that._decideRequest(row, "approve"); } }
+            });
+        },
+
+        onRejectRequest: function (oEvent) {
+            var row = oEvent.getSource().getBindingContext("dash").getObject(), that = this;
+            MessageBox.prompt("Enter the reason for rejecting " + row.requestNo + ":", {
+                title: "Reject asset request", initialValue: "", maxLength: 200,
+                actions: [MessageBox.Action.OK, MessageBox.Action.CANCEL], emphasizedAction: MessageBox.Action.OK,
+                onClose: function (action, value) {
+                    if (action !== MessageBox.Action.OK) { return; }
+                    var reason = String(value || "").trim();
+                    if (!reason) { MessageBox.error("A rejection reason is required."); return; }
+                    that._decideRequest(row, "reject", reason);
+                }
+            });
+        },
+
+        _decideRequest: function (row, action, reason) {
+            var that = this, m = this.getView().getModel("dash");
+            var path = "AssetRequestSrv(" + encodeURIComponent(row.request_ID) + ")/CatalogService." + action;
+            m.setProperty("/busy", true);
+            this._post(path, action === "reject" ? { reason: reason } : {}).then(function () {
+                MessageToast.show(action === "approve" ? "Asset request approved." : "Asset request rejected.");
+                that._load();
+            }).catch(function (e) {
+                MessageBox.error("Could not " + action + " request: " + e.message);
+            }).finally(function () { m.setProperty("/busy", false); });
+        },
+
+        _refreshRequestList: function (showMessage) {
+            var that = this;
+            return this._get("AssetRequestOverviewSrv?$select=request_ID,requestNo,status,justification,neededBy,createdAt,requestedBy,decidedAt,rejectionReason,employeeName,employeeEmail,employeeDepartment,assetTag,assetModel&$orderby=createdAt desc&$top=500")
+                .then(function (rows) {
+                    that._setRequests(rows);
+                    if (showMessage) {
+                        var pending = rows.filter(function (r) { return r.status === "Pending"; }).length;
+                        MessageToast.show(pending ? pending + " asset request(s) need your decision. Review the Asset Requests table." : "There are no pending asset requests.");
+                    }
+                }).catch(function (e) {
+                    if (showMessage) { MessageBox.error("Could not refresh asset requests: " + e.message); }
+                });
+        },
+
+        onShowRequests: function () {
+            this._refreshRequestList(true);
+        },
+
+        onExit: function () {
+            if (this._requestPoll) {
+                window.clearInterval(this._requestPoll);
+                this._requestPoll = null;
+            }
         },
 
         _distinct: function (key, allText) {
@@ -170,7 +276,31 @@ sap.ui.define([
                 return true;
             });
         },
-
+                _donutHtml: function (segs) {
+            var hexOf = { "Assigned": "#0070f2", "In Stock": "#30914c", "Maintenance": "#e76500", "Retired": "#d20a0a", "Archived": "#758ca4" };
+            var esc = function (t) { return String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); };
+            var total = segs.reduce(function (t, s) { return t + s.value; }, 0);
+            var wrap = "display:flex;flex-wrap:wrap;align-items:center;gap:1.5rem;padding:0.5rem 0.25rem;";
+            if (!total) { return '<div style="' + wrap + 'color:var(--sapContent_LabelColor);">-</div>'; }
+            var R = 40, C = 2 * Math.PI * R, offset = 0, rings = "", legend = "";
+            segs.forEach(function (s) {
+                var len = s.value / total * C, color = hexOf[s.key] || "#758ca4";
+                rings += '<circle cx="60" cy="60" r="' + R + '" fill="none" stroke="' + color + '" stroke-width="22"' +
+                    ' stroke-dasharray="' + len.toFixed(3) + ' ' + (C - len).toFixed(3) + '"' +
+                    ' stroke-dashoffset="' + (-offset).toFixed(3) + '" transform="rotate(-90 60 60)">' +
+                    '<title>' + esc(s.label) + ': ' + s.value + '</title></circle>';
+                offset += len;
+                legend += '<div style="display:flex;align-items:center;gap:0.5rem;margin:0.25rem 0;">' +
+                    '<span style="width:0.75rem;height:0.75rem;border-radius:50%;flex:none;background:' + color + ';"></span>' +
+                    '<span style="color:var(--sapTextColor);">' + esc(s.label) + '</span>' +
+                    '<b style="margin-left:auto;padding-left:1rem;color:var(--sapTextColor);">' + s.value + '</b></div>';
+            });
+            return '<div style="' + wrap + '">' +
+                '<svg width="160" height="160" viewBox="0 0 120 120" role="img" aria-label="' + esc(this._t("chartStatus")) + '">' + rings +
+                '<text x="60" y="62" text-anchor="middle" font-size="22" font-weight="700" fill="var(--sapTextColor)">' + total + '</text>' +
+                '<text x="60" y="76" text-anchor="middle" font-size="8" fill="var(--sapContent_LabelColor)">' + esc(this._t("kpiTotal")) + '</text></svg>' +
+                '<div style="flex:1;min-width:11rem;">' + legend + '</div></div>';
+        },
         _bars: function (items, keyFn) {
             var by = {};
             items.forEach(function (x) { var k = keyFn(x); by[k] = (by[k] || 0) + 1; });
@@ -233,11 +363,11 @@ sap.ui.define([
                 { s: "Retired",     value: retired,   color: "Error" },
                 { s: "Archived",    value: archived,  color: "Neutral" }
             ].filter(function (s) { return s.value > 0; }).map(function (s) {
-                return { label: that._tr("status", s.s) + " (" + pct(s.value) + "%)", value: s.value, display: String(s.value), color: s.color };
+                              return { label: that._tr("status", s.s) + " (" + pct(s.value) + "%)", value: s.value, display: String(s.value), color: s.color, key: s.s };
             });
             m.setProperty("/statusSegments", segs);
             m.setProperty("/segmentCount", Math.max(segs.length, 1));
-
+                        m.setProperty("/donutHtml", this._donutHtml(segs));
             var catBars = this._bars(rows, function (a) { return a._category; });
             m.setProperty("/categoryBars", catBars);
             m.setProperty("/barCount", Math.max(catBars.length, 1));

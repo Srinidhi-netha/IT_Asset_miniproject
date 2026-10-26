@@ -1,193 +1,279 @@
-<mvc:View controllerName="dashboard.controller.Dashboard"
-    xmlns:mvc="sap.ui.core.mvc" xmlns="sap.m" xmlns:core="sap.ui.core"
-    xmlns:mc="sap.suite.ui.microchart" displayBlock="true">
-    <Page id="dashboardPage" title="{i18n>appTitle}" busy="{dash>/busy}" busyIndicatorDelay="0">
-        <headerContent>
-            <Select id="langSelect" selectedKey="{dash>/language}" change=".onLanguageChange" width="8rem"
-                tooltip="{i18n>language}" class="sapUiTinyMarginEnd">
-                <core:Item key="en" text="English"/>
-                <core:Item key="de" text="Deutsch"/>
-            </Select>
-            <Text text="{= ${i18n>updated} + ' ' + ${dash>/updated} }" class="sapUiTinyMarginEnd"/>
-            <Button icon="sap-icon://refresh" tooltip="{i18n>refresh}" press=".onRefresh"/>
-        </headerContent>
+
+<mvc:View xmlns:mvc="sap.ui.core.mvc" xmlns="sap.m" xmlns:core="sap.ui.core" xmlns:mc="sap.suite.ui.microchart" controllerName="dashboard.controller.Dashboard" displayBlock="true">
+<Page id="dashboardPage" title="{i18n>appTitle}" busy="{dash>/busy}" busyIndicatorDelay="0">
+<headerContent>
+<Select id="langSelect" selectedKey="{dash>/language}" change=".onLanguageChange" width="8rem" tooltip="{i18n>language}" class="sapUiTinyMarginEnd">
+<core:Item key="en" text="English"/>
+<core:Item key="de" text="Deutsch"/>
+</Select>
+<Text text="{= ${i18n>updated} + ' ' + ${dash>/updated} }" class="sapUiTinyMarginEnd"/>
+<Button icon="sap-icon://bell" text="{= 'Requests (' + ${dash>/pendingRequests} + ')' }" tooltip="Pending asset requests" press=".onShowRequests"/>
+<Button icon="sap-icon://refresh" tooltip="{i18n>refresh}" press=".onRefresh"/>
+</headerContent>
+<content>
+<VBox class="sapUiSmallMargin">
+<VBox class="sapUiSmallMarginBottom">
+<Text text="{i18n>eyebrow}" class="dashEyebrow"/>
+<Title text="{i18n>pageTitle}" level="H1" titleStyle="H2"/>
+<Text text="{i18n>pageSubtitle}"/>
+</VBox>
+<MessageStrip text="{dash>/error}" type="Error" showIcon="true" visible="{= !!${dash>/error} }" class="sapUiSmallMarginBottom"/>
+<MessageStrip text="{i18n>accessBanner}" type="Information" showIcon="true" class="sapUiSmallMarginBottom"/>
+<Panel expandable="true" expanded="true" class="sapUiSmallMarginBottom">
+<headerToolbar>
+<OverflowToolbar>
+<Title text="{i18n>filtersTitle}"/>
+<Text text="{i18n>filtersHint}"/>
+<ToolbarSpacer/>
+<Button text="{i18n>clear}" type="Transparent" press=".onClear"/>
+</OverflowToolbar>
+</headerToolbar>
+<content>
+<HBox wrap="Wrap">
+<VBox class="sapUiSmallMarginEnd sapUiTinyMarginBottom">
+<Label text="{i18n>filterDate}"/>
+<DateRangeSelection dateValue="{dash>/filters/from}" secondDateValue="{dash>/filters/to}" change=".onFilterChange" width="16rem"/>
+</VBox>
+<VBox class="sapUiSmallMarginEnd sapUiTinyMarginBottom">
+<Label text="{i18n>filterStatus}"/>
+<Select selectedKey="{dash>/filters/status}" items="{dash>/options/statuses}" change=".onFilterChange" width="12rem">
+<core:Item key="{dash>key}" text="{dash>text}"/>
+</Select>
+</VBox>
+<VBox class="sapUiSmallMarginEnd sapUiTinyMarginBottom">
+<Label text="{i18n>filterCategory}"/>
+<Select selectedKey="{dash>/filters/category}" items="{dash>/options/categories}" change=".onFilterChange" width="12rem">
+<core:Item key="{dash>key}" text="{dash>text}"/>
+</Select>
+</VBox>
+<VBox class="sapUiSmallMarginEnd sapUiTinyMarginBottom">
+<Label text="{i18n>filterLocation}"/>
+<Select selectedKey="{dash>/filters/location}" items="{dash>/options/locations}" change=".onFilterChange" width="12rem">
+<core:Item key="{dash>key}" text="{dash>text}"/>
+</Select>
+</VBox>
+<VBox class="sapUiSmallMarginEnd sapUiTinyMarginBottom">
+<Label text="{i18n>filterDepartment}"/>
+<Select selectedKey="{dash>/filters/department}" items="{dash>/options/departments}" change=".onFilterChange" width="12rem">
+<core:Item key="{dash>key}" text="{dash>text}"/>
+</Select>
+</VBox>
+</HBox>
+</content>
+</Panel>
+<Panel headerText="{= 'Asset Requests (' + ${dash>/pendingRequests} + ' pending)' }" expandable="true" expanded="true" class="sapUiSmallMarginBottom">
+<content>
+<MessageStrip text="New manager requests appear here. Approve to assign the asset, or reject with a mandatory reason." type="Information" showIcon="true" class="sapUiTinyMarginBottom"/>
+<Table items="{dash>/requests}" noDataText="No asset requests found." growing="true" growingThreshold="10">
+<columns>
+<Column>
+<Text text="Request No."/>
+</Column>
+<Column>
+<Text text="Employee"/>
+</Column>
+<Column minScreenWidth="Tablet" demandPopin="true">
+<Text text="Department"/>
+</Column>
+<Column>
+<Text text="Requested Asset"/>
+</Column>
+<Column minScreenWidth="Tablet" demandPopin="true">
+<Text text="Needed By"/>
+</Column>
+<Column>
+<Text text="Status"/>
+</Column>
+<Column minScreenWidth="Tablet" demandPopin="true">
+<Text text="Justification / Rejection Reason"/>
+</Column>
+<Column hAlign="End">
+<Text text="Actions"/>
+</Column>
+</columns>
+<items>
+<ColumnListItem>
+<cells>
+<Text text="{dash>requestNo}"/>
+<VBox>
+<Text text="{dash>employeeName}"/>
+<Text text="{dash>employeeEmail}" wrapping="false"/>
+</VBox>
+<Text text="{dash>department}"/>
+<Text text="{dash>asset}"/>
+<Text text="{dash>neededBy}"/>
+<ObjectStatus text="{dash>status}" state="{dash>state}"/>
+<VBox>
+<Text text="{dash>justification}" wrapping="true"/>
+<Text text="{dash>rejectionReason}" wrapping="true" visible="{= !!${dash>rejectionReason} }"/>
+</VBox>
+<HBox justifyContent="End" renderType="Bare">
+<Button text="Approve" icon="sap-icon://accept" type="Accept" visible="{dash>canDecide}" press=".onApproveRequest" class="sapUiTinyMarginEnd"/>
+<Button text="Reject" icon="sap-icon://decline" type="Reject" visible="{dash>canDecide}" press=".onRejectRequest"/>
+</HBox>
+</cells>
+</ColumnListItem>
+</items>
+</Table>
+</content>
+</Panel>
+<Title text="{i18n>assetsSection}" level="H3" titleStyle="H4" class="sapUiTinyMarginBottom"/>
+<HBox wrap="Wrap" class="sapUiSmallMarginBottom">
+<GenericTile header="{i18n>kpiTotal}" subheader="{dash>/kpiText/total}" press=".onKpiPress('')" class="sapUiTinyMarginEnd sapUiTinyMarginBottom">
+<TileContent>
+<NumericContent value="{dash>/kpi/total}" valueColor="Neutral" withMargin="false"/>
+</TileContent>
+</GenericTile>
+<GenericTile header="{i18n>kpiAvailable}" subheader="{dash>/kpiText/available}" press=".onKpiPress('In Stock')" class="sapUiTinyMarginEnd sapUiTinyMarginBottom">
+<TileContent>
+<NumericContent value="{dash>/kpi/available}" valueColor="Good" withMargin="false"/>
+</TileContent>
+</GenericTile>
+<GenericTile header="{i18n>kpiAssigned}" subheader="{dash>/kpiText/assigned}" press=".onKpiPress('Assigned')" class="sapUiTinyMarginEnd sapUiTinyMarginBottom">
+<TileContent>
+<NumericContent value="{dash>/kpi/assigned}" valueColor="Neutral" withMargin="false"/>
+</TileContent>
+</GenericTile>
+<GenericTile header="{i18n>kpiMaintenance}" subheader="{dash>/kpiText/maintenance}" press=".onKpiPress('Maintenance')" class="sapUiTinyMarginEnd sapUiTinyMarginBottom">
+<TileContent>
+<NumericContent value="{dash>/kpi/maintenance}" valueColor="Critical" withMargin="false"/>
+</TileContent>
+</GenericTile>
+<GenericTile header="{i18n>kpiRetired}" subheader="{dash>/kpiText/retired}" press=".onKpiPress('Retired')" class="sapUiTinyMarginEnd sapUiTinyMarginBottom">
+<TileContent>
+<NumericContent value="{dash>/kpi/retired}" valueColor="Error" withMargin="false"/>
+</TileContent>
+</GenericTile>
+<GenericTile header="{i18n>kpiArchived}" subheader="{dash>/kpiText/archived}" press=".onAppPress('Archive')" class="sapUiTinyMarginEnd sapUiTinyMarginBottom">
+<TileContent>
+<NumericContent value="{dash>/kpi/archived}" valueColor="Neutral" withMargin="false"/>
+</TileContent>
+</GenericTile>
+</HBox>
+<Title text="{i18n>masterSection}" level="H3" class="sapUiTinyMarginBottom"/>
+<HBox wrap="Wrap" class="sapUiSmallMarginBottom">
+<GenericTile header="{i18n>kpiEmployees}" subheader="{dash>/kpiText/employees}" press=".onAppPress('Employees')" class="sapUiTinyMarginEnd sapUiTinyMarginBottom">
+<TileContent>
+<NumericContent value="{dash>/kpi/employees}" icon="sap-icon://employee" valueColor="Neutral" withMargin="false"/>
+</TileContent>
+</GenericTile>
+<GenericTile header="{i18n>kpiDepartments}" press=".onAppPress('Departments')" class="sapUiTinyMarginEnd sapUiTinyMarginBottom">
+<TileContent>
+<NumericContent value="{dash>/kpi/departments}" icon="sap-icon://org-chart" valueColor="Neutral" withMargin="false"/>
+</TileContent>
+</GenericTile>
+<GenericTile header="{i18n>kpiCategories}" press=".onAppPress('Categories')" class="sapUiTinyMarginEnd sapUiTinyMarginBottom">
+<TileContent>
+<NumericContent value="{dash>/kpi/categories}" icon="sap-icon://product" valueColor="Neutral" withMargin="false"/>
+</TileContent>
+</GenericTile>
+<GenericTile header="{i18n>kpiVendors}" press=".onAppPress('Vendors')" class="sapUiTinyMarginEnd sapUiTinyMarginBottom">
+<TileContent>
+<NumericContent value="{dash>/kpi/vendors}" icon="sap-icon://supplier" valueColor="Neutral" withMargin="false"/>
+</TileContent>
+</GenericTile>
+<GenericTile header="{i18n>kpiOpenMaint}" subheader="{dash>/kpiText/openMaint}" press=".onAppPress('Maintenance')" class="sapUiTinyMarginEnd sapUiTinyMarginBottom">
+<TileContent>
+<NumericContent value="{dash>/kpi/openMaint}" icon="sap-icon://wrench" valueColor="Critical" withMargin="false"/>
+</TileContent>
+</GenericTile>
+<GenericTile header="{i18n>kpiWarranty}" subheader="{i18n>ctxWithin30}" press=".onKpiPress('')" class="sapUiTinyMarginEnd sapUiTinyMarginBottom">
+<TileContent>
+<NumericContent value="{dash>/kpi/warranty}" icon="sap-icon://shield" valueColor="Critical" withMargin="false"/>
+</TileContent>
+</GenericTile>
+</HBox>
+
+<HBox wrap="Wrap" width="100%" class="sapUiSmallMarginBottom">
+    <Panel headerText="{i18n>chartStatus}" class="sapUiTinyMarginEnd sapUiTinyMarginBottom" width="30rem">
         <content>
-            <VBox class="sapUiSmallMargin">
-
-                <VBox class="sapUiSmallMarginBottom">
-                    <Text text="{i18n>eyebrow}" class="dashEyebrow"/>
-                    <Title text="{i18n>pageTitle}" level="H1" titleStyle="H2"/>
-                    <Text text="{i18n>pageSubtitle}"/>
-                </VBox>
-
-                <MessageStrip text="{dash>/error}" type="Error" showIcon="true"
-                    visible="{= !!${dash>/error} }" class="sapUiSmallMarginBottom"/>
-                <MessageStrip text="{i18n>accessBanner}" type="Information" showIcon="true" class="sapUiSmallMarginBottom"/>
-
-                <Panel expandable="true" expanded="true" class="sapUiSmallMarginBottom">
-                    <headerToolbar>
-                        <OverflowToolbar>
-                            <Title text="{i18n>filtersTitle}"/>
-                            <Text text="{i18n>filtersHint}"/>
-                            <ToolbarSpacer/>
-                            <Button text="{i18n>clear}" type="Transparent" press=".onClear"/>
-                        </OverflowToolbar>
-                    </headerToolbar>
-                    <content>
-                        <HBox wrap="Wrap">
-                            <VBox class="sapUiSmallMarginEnd sapUiTinyMarginBottom">
-                                <Label text="{i18n>filterDate}"/>
-                                <DateRangeSelection dateValue="{dash>/filters/from}" secondDateValue="{dash>/filters/to}"
-                                    change=".onFilterChange" width="16rem"/>
-                            </VBox>
-                            <VBox class="sapUiSmallMarginEnd sapUiTinyMarginBottom">
-                                <Label text="{i18n>filterStatus}"/>
-                                <Select selectedKey="{dash>/filters/status}" items="{dash>/options/statuses}"
-                                    change=".onFilterChange" width="12rem">
-                                    <core:Item key="{dash>key}" text="{dash>text}"/>
-                                </Select>
-                            </VBox>
-                            <VBox class="sapUiSmallMarginEnd sapUiTinyMarginBottom">
-                                <Label text="{i18n>filterCategory}"/>
-                                <Select selectedKey="{dash>/filters/category}" items="{dash>/options/categories}"
-                                    change=".onFilterChange" width="12rem">
-                                    <core:Item key="{dash>key}" text="{dash>text}"/>
-                                </Select>
-                            </VBox>
-                            <VBox class="sapUiSmallMarginEnd sapUiTinyMarginBottom">
-                                <Label text="{i18n>filterLocation}"/>
-                                <Select selectedKey="{dash>/filters/location}" items="{dash>/options/locations}"
-                                    change=".onFilterChange" width="12rem">
-                                    <core:Item key="{dash>key}" text="{dash>text}"/>
-                                </Select>
-                            </VBox>
-                            <VBox class="sapUiSmallMarginEnd sapUiTinyMarginBottom">
-                                <Label text="{i18n>filterDepartment}"/>
-                                <Select selectedKey="{dash>/filters/department}" items="{dash>/options/departments}"
-                                    change=".onFilterChange" width="12rem">
-                                    <core:Item key="{dash>key}" text="{dash>text}"/>
-                                </Select>
-                            </VBox>
-                        </HBox>
-                    </content>
-                </Panel>
-
-                <Title text="{i18n>assetsSection}" level="H3" class="sapUiTinyMarginBottom"/>
-                <HBox wrap="Wrap" class="sapUiSmallMarginBottom">
-                    <GenericTile header="{i18n>kpiTotal}" subheader="{dash>/kpiText/total}"
-                        press=".onKpiPress('')" class="sapUiTinyMarginEnd sapUiTinyMarginBottom">
-                        <TileContent><NumericContent value="{dash>/kpi/total}" valueColor="Neutral" withMargin="false"/></TileContent>
-                    </GenericTile>
-                    <GenericTile header="{i18n>kpiAvailable}" subheader="{dash>/kpiText/available}"
-                        press=".onKpiPress('In Stock')" class="sapUiTinyMarginEnd sapUiTinyMarginBottom">
-                        <TileContent><NumericContent value="{dash>/kpi/available}" valueColor="Good" withMargin="false"/></TileContent>
-                    </GenericTile>
-                    <GenericTile header="{i18n>kpiAssigned}" subheader="{dash>/kpiText/assigned}"
-                        press=".onKpiPress('Assigned')" class="sapUiTinyMarginEnd sapUiTinyMarginBottom">
-                        <TileContent><NumericContent value="{dash>/kpi/assigned}" valueColor="Neutral" withMargin="false"/></TileContent>
-                    </GenericTile>
-                    <GenericTile header="{i18n>kpiMaintenance}" subheader="{dash>/kpiText/maintenance}"
-                        press=".onKpiPress('Maintenance')" class="sapUiTinyMarginEnd sapUiTinyMarginBottom">
-                        <TileContent><NumericContent value="{dash>/kpi/maintenance}" valueColor="Critical" withMargin="false"/></TileContent>
-                    </GenericTile>
-                    <GenericTile header="{i18n>kpiRetired}" subheader="{dash>/kpiText/retired}"
-                        press=".onKpiPress('Retired')" class="sapUiTinyMarginEnd sapUiTinyMarginBottom">
-                        <TileContent><NumericContent value="{dash>/kpi/retired}" valueColor="Error" withMargin="false"/></TileContent>
-                    </GenericTile>
-                    <GenericTile header="{i18n>kpiArchived}" subheader="{dash>/kpiText/archived}"
-                        press=".onAppPress('Archive')" class="sapUiTinyMarginEnd sapUiTinyMarginBottom">
-                        <TileContent><NumericContent value="{dash>/kpi/archived}" valueColor="Neutral" withMargin="false"/></TileContent>
-                    </GenericTile>
-                </HBox>
-
-                <Title text="{i18n>masterSection}" level="H3" class="sapUiTinyMarginBottom"/>
-                <HBox wrap="Wrap" class="sapUiSmallMarginBottom">
-                    <GenericTile header="{i18n>kpiEmployees}" subheader="{dash>/kpiText/employees}"
-                        press=".onAppPress('Employees')" class="sapUiTinyMarginEnd sapUiTinyMarginBottom">
-                        <TileContent><NumericContent value="{dash>/kpi/employees}" icon="sap-icon://employee" valueColor="Neutral" withMargin="false"/></TileContent>
-                    </GenericTile>
-                    <GenericTile header="{i18n>kpiDepartments}"
-                        press=".onAppPress('Departments')" class="sapUiTinyMarginEnd sapUiTinyMarginBottom">
-                        <TileContent><NumericContent value="{dash>/kpi/departments}" icon="sap-icon://org-chart" valueColor="Neutral" withMargin="false"/></TileContent>
-                    </GenericTile>
-                    <GenericTile header="{i18n>kpiCategories}"
-                        press=".onAppPress('Categories')" class="sapUiTinyMarginEnd sapUiTinyMarginBottom">
-                        <TileContent><NumericContent value="{dash>/kpi/categories}" icon="sap-icon://product" valueColor="Neutral" withMargin="false"/></TileContent>
-                    </GenericTile>
-                    <GenericTile header="{i18n>kpiVendors}"
-                        press=".onAppPress('Vendors')" class="sapUiTinyMarginEnd sapUiTinyMarginBottom">
-                        <TileContent><NumericContent value="{dash>/kpi/vendors}" icon="sap-icon://supplier" valueColor="Neutral" withMargin="false"/></TileContent>
-                    </GenericTile>
-                    <GenericTile header="{i18n>kpiOpenMaint}" subheader="{dash>/kpiText/openMaint}"
-                        press=".onAppPress('Maintenance')" class="sapUiTinyMarginEnd sapUiTinyMarginBottom">
-                        <TileContent><NumericContent value="{dash>/kpi/openMaint}" icon="sap-icon://wrench" valueColor="Critical" withMargin="false"/></TileContent>
-                    </GenericTile>
-                    <GenericTile header="{i18n>kpiWarranty}" subheader="{i18n>ctxWithin30}"
-                        press=".onKpiPress('')" class="sapUiTinyMarginEnd sapUiTinyMarginBottom">
-                        <TileContent><NumericContent value="{dash>/kpi/warranty}" icon="sap-icon://shield" valueColor="Critical" withMargin="false"/></TileContent>
-                    </GenericTile>
-                </HBox>
-
-                <HBox wrap="Wrap" class="sapUiSmallMarginBottom">
-                    <Panel headerText="{i18n>chartStatus}" width="30rem" class="sapUiSmallMarginEnd sapUiTinyMarginBottom">
-                        <mc:InteractiveDonutChart displayedSegments="{dash>/segmentCount}" segments="{dash>/statusSegments}">
-                            <mc:InteractiveDonutChartSegment label="{dash>label}" value="{dash>value}"
-                                displayedValue="{dash>display}" color="{dash>color}"/>
-                        </mc:InteractiveDonutChart>
-                    </Panel>
-                    <Panel headerText="{i18n>chartCategory}" width="30rem" class="sapUiSmallMarginEnd sapUiTinyMarginBottom">
-                        <mc:InteractiveBarChart displayedBars="{dash>/barCount}" bars="{dash>/categoryBars}">
-                            <mc:InteractiveBarChartBar label="{dash>label}" value="{dash>value}" displayedValue="{dash>display}"/>
-                        </mc:InteractiveBarChart>
-                    </Panel>
-                    <Panel headerText="{i18n>chartDepartment}" width="30rem" class="sapUiSmallMarginEnd sapUiTinyMarginBottom">
-                        <mc:InteractiveBarChart displayedBars="{dash>/deptBarCount}" bars="{dash>/departmentBars}">
-                            <mc:InteractiveBarChartBar label="{dash>label}" value="{dash>value}" displayedValue="{dash>display}"/>
-                        </mc:InteractiveBarChart>
-                    </Panel>
-                    <Panel headerText="{i18n>chartMaintType}" width="30rem" class="sapUiTinyMarginBottom">
-                        <mc:InteractiveBarChart displayedBars="{dash>/maintBarCount}" bars="{dash>/maintTypeBars}">
-                            <mc:InteractiveBarChartBar label="{dash>label}" value="{dash>value}" displayedValue="{dash>display}"/>
-                        </mc:InteractiveBarChart>
-                    </Panel>
-                </HBox>
-
-                <HBox wrap="Wrap" class="sapUiSmallMarginBottom">
-                    <Panel headerText="{i18n>attentionTitle}" width="30rem" class="sapUiSmallMarginEnd sapUiTinyMarginBottom">
-                        <List items="{dash>/attention}">
-                            <StandardListItem title="{dash>title}" description="{dash>desc}" icon="{dash>icon}"
-                                type="Navigation" press=".onListNavPress"/>
-                        </List>
-                    </Panel>
-                    <Panel headerText="{i18n>appsTitle}" width="30rem" class="sapUiTinyMarginBottom">
-                        <List items="{dash>/apps}">
-                            <StandardListItem title="{dash>title}" description="{dash>desc}" icon="{dash>icon}"
-                                info="{dash>info}" type="Navigation" press=".onListNavPress"/>
-                        </List>
-                    </Panel>
-                </HBox>
-
-                <Panel headerText="{i18n>summaryTitle}" class="sapUiSmallMarginBottom">
-                    <Text text="{i18n>summaryHint}" class="sapUiTinyMarginBottom"/>
-                    <Table items="{dash>/summary}">
-                        <columns>
-                            <Column><Text text="{i18n>colMetric}"/></Column>
-                            <Column><Text text="{i18n>colValue}"/></Column>
-                            <Column><Text text="{i18n>colContext}"/></Column>
-                        </columns>
-                        <items>
-                            <ColumnListItem>
-                                <cells>
-                                    <Text text="{dash>metric}"/>
-                                    <Text text="{dash>value}"/>
-                                    <Text text="{dash>context}"/>
-                                </cells>
-                            </ColumnListItem>
-                        </items>
-                    </Table>
-                </Panel>
-
-            </VBox>
+                                    <core:HTML content="{dash>/donutHtml}" preferDOM="false"/>
         </content>
-    </Page>
+    </Panel>
+
+    <Panel headerText="{i18n>chartCategory}" class="sapUiTinyMarginEnd sapUiTinyMarginBottom" width="30rem">
+        <content>
+            <mc:InteractiveBarChart
+                displayedBars="{dash>/barCount}"
+                bars="{dash>/categoryBars}">
+                <mc:bars>
+                    <mc:InteractiveBarChartBar
+                        label="{dash>label}"
+                        value="{dash>value}"
+                        displayedValue="{dash>display}"/>
+                </mc:bars>
+            </mc:InteractiveBarChart>
+        </content>
+    </Panel>
+
+    <Panel headerText="{i18n>chartDepartment}" class="sapUiTinyMarginEnd sapUiTinyMarginBottom" width="30rem">
+        <content>
+            <mc:InteractiveBarChart
+                displayedBars="{dash>/deptBarCount}"
+                bars="{dash>/departmentBars}">
+                <mc:bars>
+                    <mc:InteractiveBarChartBar
+                        label="{dash>label}"
+                        value="{dash>value}"
+                        displayedValue="{dash>display}"/>
+                </mc:bars>
+            </mc:InteractiveBarChart>
+        </content>
+    </Panel>
+
+    <Panel headerText="{i18n>chartMaintType}" class="sapUiTinyMarginBottom" width="30rem">
+        <content>
+            <mc:InteractiveBarChart
+                displayedBars="{dash>/maintBarCount}"
+                bars="{dash>/maintTypeBars}">
+                <mc:bars>
+                    <mc:InteractiveBarChartBar
+                        label="{dash>label}"
+                        value="{dash>value}"
+                        displayedValue="{dash>display}"/>
+                </mc:bars>
+            </mc:InteractiveBarChart>
+        </content>
+    </Panel>
+</HBox>
+<HBox wrap="Wrap" class="sapUiSmallMarginBottom">
+<Panel headerText="{i18n>attentionTitle}" width="100%" class="sapUiSmallMarginEnd sapUiTinyMarginBottom">
+<List items="{dash>/attention}">
+<StandardListItem title="{dash>title}" description="{dash>desc}" icon="{dash>icon}" type="Navigation" press=".onListNavPress"/>
+</List>
+</Panel>
+<Panel headerText="{i18n>appsTitle}" width="30rem" class="sapUiTinyMarginBottom">
+<List items="{dash>/apps}">
+<StandardListItem title="{dash>title}" description="{dash>desc}" icon="{dash>icon}" info="{dash>info}" type="Navigation" press=".onListNavPress"/>
+</List>
+</Panel>
+</HBox>
+<Panel headerText="{i18n>summaryTitle}" class="sapUiSmallMarginBottom">
+<Text text="{i18n>summaryHint}" class="sapUiTinyMarginBottom"/>
+<Table items="{dash>/summary}">
+<columns>
+<Column>
+<Text text="{i18n>colMetric}"/>
+</Column>
+<Column>
+<Text text="{i18n>colValue}"/>
+</Column>
+<Column>
+<Text text="{i18n>colContext}"/>
+</Column>
+</columns>
+<items>
+<ColumnListItem>
+<cells>
+<Text text="{dash>metric}"/>
+<Text text="{dash>value}"/>
+<Text text="{dash>context}"/>
+</cells>
+</ColumnListItem>
+</items>
+</Table>
+</Panel>
+</VBox>
+</content>
+</Page>
 </mvc:View>

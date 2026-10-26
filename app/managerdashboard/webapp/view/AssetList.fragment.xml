@@ -1,0 +1,34 @@
+<core:FragmentDefinition xmlns="sap.m" xmlns:core="sap.ui.core">
+    <Dialog id="assetListDialog" title="{dash>/kpiTitle}" contentWidth="70rem"
+        contentHeight="30rem" draggable="true" resizable="true">
+        <content>
+            <Table items="{dash>/kpiAssets}" noDataText="No assets" growing="true" growingThreshold="20">
+                <columns>
+                    <Column><Text text="Asset Tag"/></Column>
+                    <Column><Text text="Model"/></Column>
+                    <Column><Text text="Status"/></Column>
+                    <Column><Text text="Category"/></Column>
+                    <Column><Text text="Holder"/></Column>
+                    <Column><Text text="Department"/></Column>
+                    <Column><Text text="Location"/></Column>
+                </columns>
+                <items>
+                    <ColumnListItem type="Navigation" press=".onKpiAssetPress">
+                        <cells>
+                            <Text text="{dash>assetTag}"/>
+                            <Text text="{dash>model}"/>
+                            <ObjectStatus text="{dash>status}" state="{dash>statusState}"/>
+                            <Text text="{dash>category}"/>
+                            <Text text="{dash>holder}"/>
+                            <Text text="{dash>department}"/>
+                            <Text text="{dash>location}"/>
+                        </cells>
+                    </ColumnListItem>
+                </items>
+            </Table>
+        </content>
+        <endButton>
+            <Button text="Close" press=".onCloseKpiDialog"/>
+        </endButton>
+    </Dialog>
+</core:FragmentDefinition>

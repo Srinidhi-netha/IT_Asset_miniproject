@@ -115,14 +115,23 @@ sap.ui.define([
             m.setProperty("/busy", true);
             m.setProperty("/error", "");
 
+            // Keep notifications outside the Promise callback so they remain available
+            // when the maintenance request finishes in the next callback.
+            var savedNotifications = [];
+
             // The service already limits users to their own assets; the holder filter keeps the page
             // personal for admins and managers too.
             return Promise.all([
                 this._get("AssetOverviewSrv?$select=asset_ID,assetTag,model,serialNumber,status,warrantyExpiry,categoryName,vendorName,holderLocation" +
-                    "&$filter=holderId eq " + id + "&$orderby=assetTag&$top=1000"),
-                this._get("AssetHistorySrv?$select=transitionDate&$filter=toId eq " + id +
-                    "&$orderby=transitionDate desc&$top=1")
+                    "&$filter=holderId eq '" + id + "'&$orderby=assetTag&$top=1000"),
+                this._get("AssetHistorySrv?$select=transitionDate&$filter=toId eq '" + id +
+                    "'&$orderby=transitionDate desc&$top=1"),
+                // Persistent approval/rejection/assignment notifications for the signed-in user.
+                // CAP applies recipientEmail = $user on NotificationSrv.
+                this._get("NotificationSrv?$select=notification_ID,title,message,isRead,createdAt&$orderby=createdAt desc&$top=100")
+                    .catch(function () { return []; })
             ]).then(function (res) {
+                savedNotifications = res[2] || [];
                 that._assets = res[0].map(function (a) {
                     a._category = a.categoryName || that._t("noCategory");
                     a._vendor = a.vendorName || "";
@@ -137,13 +146,13 @@ sap.ui.define([
 
                 var ids = that._assets.map(function (a) { return a.asset_ID; });
                 return ids.length ? that._get("MaintenanceOverviewSrv?$select=maintenance_ID,assetId,status" +
-                    "&$filter=assetId in (" + ids.join(",") + ") and (status eq 'Open' or status eq 'In Progress')&$top=1000") : [];
+                    "&$filter=assetId in (" + ids.map(function (i) { return "'" + i + "'"; }).join(",") + ") and (status eq 'Open' or status eq 'In Progress')&$top=1000") : [];
             }).then(function (open) {
                 m.setProperty("/kpi/assigned", that._assets.length);
                 m.setProperty("/kpi/openService", open.length);
                 that._buildOptions();
                 that._refresh();
-                that._buildNotifications(open);
+                that._buildNotifications(open, savedNotifications);
                 m.setProperty("/busy", false);
             }).catch(this._fail.bind(this));
         },
@@ -178,8 +187,18 @@ sap.ui.define([
             }));
         },
 
-        _buildNotifications: function (open) {
+        _buildNotifications: function (open, savedNotifications) {
             var that = this, today = iso(new Date()), soon = iso(new Date(Date.now() + 30 * DAY)), list = [];
+            // Show saved workflow notifications first (request approved/rejected, asset assigned).
+            (savedNotifications || []).forEach(function (n) {
+                list.push({
+                    title: n.title || that._t("notifications"),
+                    desc: n.message || "",
+                    icon: "sap-icon://bell",
+                    state: n.isRead ? "None" : "Information",
+                    time: n.createdAt ? that._dateFmt.format(new Date(n.createdAt)) : ""
+                });
+            });
             var byId = {};
             this._assets.forEach(function (a) { byId[a.asset_ID] = a; });
 
@@ -257,9 +276,9 @@ sap.ui.define([
 
             Promise.all([
                 this._get("AssetHistorySrv?$select=transitionDate,action,fromName,toName,notes,createdAt" +
-                    "&$filter=assetId eq " + a.asset_ID + "&$orderby=transitionDate desc,createdAt desc&$top=500"),
+                    "&$filter=assetId eq '" + a.asset_ID + "'&$orderby=transitionDate desc,createdAt desc&$top=500"),
                 this._get("MaintenanceOverviewSrv?$select=reportedDate,completedDate,type,status,outcome" +
-                    "&$filter=assetId eq " + a.asset_ID + "&$orderby=reportedDate desc&$top=500")
+                    "&$filter=assetId eq '" + a.asset_ID + "'&$orderby=reportedDate desc&$top=500")
             ]).then(function (res) {
                 m.setProperty("/history/ledger", res[0].map(function (l) {
                     return { date: that._date(l.transitionDate), action: that._tr("action", l.action),

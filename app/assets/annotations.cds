@@ -91,10 +91,14 @@ annotate service.AssetSrv with @(
         ]
     },
 
-    UI.FieldGroup #Ownership : {
+       UI.FieldGroup #Ownership : {
         Data : [
             { Value : currentHolder_employee_ID, Label : 'Current Holder' },
-            { Value : currentHolder.location,   Label : 'Location' },
+            {
+                Value : currentHolder.location,
+                Label : 'Location',
+                ![@Common.FieldControl] : #ReadOnly
+            },
             { Value : firstDistributionDate,    Label : 'First Distribution Date' }
         ]
     }

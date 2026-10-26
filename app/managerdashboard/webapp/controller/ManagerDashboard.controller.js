@@ -31,6 +31,7 @@ sap.ui.define([
     }
 
     return Controller.extend("managerdashboard.controller.ManagerDashboard", {
+        
 
         onInit: function () {
             var that = this;
@@ -38,6 +39,7 @@ sap.ui.define([
             this._ledger = [];
             this._maintenance = [];
             this._posted = [];
+            this._savedNotifications = [];
             this._rows = [];
             this._dateFmt = DateFormat.getDateInstance({ style: "medium" });
             this._dateTimeFmt = DateFormat.getDateTimeInstance({ style: "medium" });
@@ -52,7 +54,14 @@ sap.ui.define([
                 departmentBars: [], deptBarCount: 1,
                 maintTypeBars: [], maintBarCount: 1,
                 assignments: [], history: [], maintenance: [], summary: [],
-                notifications: [], notifCount: "0"
+                notifications: [], notifCount: "0",
+                 assetDetail: {},
+                 kpiAssets: [],
+                kpiTitle: "",
+
+                requests: [],
+                reqOptions: { employees: [], assets: [] },
+                reqForm: { employeeId: "", assetId: "", justification: "", neededBy: null, error: "", busy: false, emp: {}, asset: {} }
             }), "dash");
 
             // getResourceBundle() returns a Promise when the i18n model is loaded async
@@ -110,7 +119,9 @@ sap.ui.define([
                     "categoryName,holderId,holderName,holderLocation,holderDepartment&$top=5000"),
                 soft(this._get("AssetHistorySrv?$select=ledger_ID,assetId,action,transitionDate,fromName,toId,toName,notes,createdAt" +
                     "&$orderby=transitionDate desc,createdAt desc&$top=5000")),
-                soft(this._get("MaintenanceOverviewSrv?$select=maintenance_ID,assetId,type,vendorName,reportedDate,completedDate,status&$orderby=reportedDate desc&$top=5000"))
+                soft(this._get("MaintenanceOverviewSrv?$select=maintenance_ID,assetId,type,vendorName,reportedDate,completedDate,status&$orderby=reportedDate desc&$top=5000")),
+                 soft(this._get("AssetRequestOverviewSrv?$select=request_ID,requestNo,status,neededBy,createdAt,rejectionReason,employeeName,assetTag,assetModel&$orderby=createdAt desc&$top=200")),
+                 soft(this._get("NotificationSrv?$select=notification_ID,title,message,isRead,createdAt&$orderby=createdAt desc&$top=100"))
             ]).then(function (res) {
                 var none = that._t("unassigned");
                 that._assets = res[0].map(function (a) {
@@ -122,6 +133,16 @@ sap.ui.define([
                 });
                 that._ledger = res[1];
                 that._maintenance = res[2];
+                that._buildRequests(res[3]);
+                that._savedNotifications = (res[4] || []).map(function (n) {
+                    return {
+                        title: n.title || "Notification",
+                        desc: n.message || "",
+                        icon: "sap-icon://bell",
+                        state: n.isRead ? "None" : "Information",
+                        time: n.createdAt ? that._dateTimeFmt.format(new Date(n.createdAt)) : ""
+                    };
+                });
 
                 that._buildOptions();
                 that._refresh();
@@ -168,13 +189,37 @@ sap.ui.define([
             });
         },
 
-        _bars: function (items, keyFn) {
-            var by = {};
-            items.forEach(function (x) { var k = keyFn(x); by[k] = (by[k] || 0) + 1; });
-            return Object.keys(by).map(function (k) {
-                return { label: k, value: by[k], display: String(by[k]) };
-            }).sort(function (x, y) { return y.value - x.value; }).slice(0, 6);
-        },
+       _bars: function (items, keyFn) {
+    var by = {};
+
+    items.forEach(function (x) {
+        var k = keyFn(x);
+        by[k] = (by[k] || 0) + 1;
+    });
+
+    var colors = [
+        "Good",
+        "Critical",
+        "Neutral",
+        "Error",
+        "Good",
+        "Critical"
+    ];
+
+    return Object.keys(by)
+        .map(function (k, index) {
+            return {
+                label: k,
+                value: by[k],
+                display: String(by[k]),
+                color: colors[index % colors.length]
+            };
+        })
+        .sort(function (x, y) {
+            return y.value - x.value;
+        })
+        .slice(0, 6);
+},
 
         _refresh: function () {
             var that = this, m = this.getView().getModel("dash");
@@ -221,17 +266,27 @@ sap.ui.define([
             m.setProperty("/kpi", kpi);
             m.setProperty("/kpiText", kpiText);
 
-            var segs = [
-                { s: "Assigned",    value: assigned,  color: "Neutral" },
-                { s: "In Stock",    value: available, color: "Good" },
-                { s: "Maintenance", value: maint,     color: "Critical" },
-                { s: "Retired",     value: retired,   color: "Error" },
-                { s: "Archived",    value: archived,  color: "Neutral" }
-            ].filter(function (s) { return s.value > 0; }).map(function (s) {
-                return { label: that._tr("status", s.s) + " (" + pct(s.value) + "%)", value: s.value, display: String(s.value), color: s.color };
-            });
-            m.setProperty("/statusSegments", segs);
-            m.setProperty("/segmentCount", Math.max(segs.length, 1));
+           var segs = [
+    { s: "Assigned",    value: assigned,  color: "Good" },
+    { s: "In Stock",    value: available, color: "Neutral" },
+    { s: "Maintenance", value: maint,     color: "Critical" },
+    { s: "Retired",     value: retired,   color: "Error" },
+    { s: "Archived",    value: archived,  color: "Neutral" }
+].map(function (item) {
+    var percentage = total
+        ? Math.round(item.value * 100 / total)
+        : 0;
+
+    return {
+        label: that._tr("status", item.s) + " (" + percentage + "%)",
+        value: Number(item.value),
+        display: String(item.value),
+        color: item.color
+    };
+});
+
+m.setProperty("/statusSegments", segs);
+m.setProperty("/segmentCount", segs.length);
 
             var deptBars = this._bars(rows.filter(function (a) { return a.status === "Assigned" && a._department !== none; }),
                 function (a) { return a._department; });
@@ -285,7 +340,7 @@ sap.ui.define([
                     (a.status === "In Stock" || a.status === "Assigned" || a.status === "Maintenance");
             }).length;
 
-            var list = this._posted.slice();
+            var list = (this._savedNotifications || []).concat(this._posted.slice());
             if (overdue)  { list.push({ title: this._t("notifMaint", [overdue]),     desc: this._t("notifMaintDesc"),    icon: "sap-icon://wrench", state: "Warning", time: "" }); }
             if (expiring) { list.push({ title: this._t("notifWarranty", [expiring]), desc: this._t("notifWarrantyDesc"), icon: "sap-icon://shield", state: "Warning", time: "" }); }
 
@@ -338,14 +393,104 @@ sap.ui.define([
             window.location.href = url.toString();
         },
 
-        onKpiPress: function (status) {
-            this._navigate("Assets", status ? { status: status } : {});
-        },
+       onKpiPress: function (status) {
+    var that = this;
+    var filtered = status
+        ? this._assets.filter(function (a) { return a.status === status; })
+        : this._assets;
 
-        onAssetRowPress: function (oEvent) {
-            var row = oEvent.getSource().getBindingContext("dash").getObject();
-            this._navigate("Assets", { assetTag: row.assetTag });
-        },
+    this.getView().getModel("dash").setProperty("/kpiAssets", filtered.map(function (a) {
+        var stateOf = { "In Stock": "Success", "Assigned": "Information", "Maintenance": "Warning", "Retired": "Error", "Archived": "None" };
+        return {
+            assetTag: a.assetTag, model: a.model, serialNumber: a.serialNumber,
+            status: a.status, statusState: stateOf[a.status] || "None",
+            category: a._category, holder: a._holder,
+            department: a._department, location: a._location,
+            purchaseDate: that._date(a.purchaseDate)
+        };
+    }));
+
+    this.getView().getModel("dash").setProperty("/kpiTitle",
+        (status ? status : "All Assets") + " (" + filtered.length + ")");
+
+    if (!this._kpiDialog) {
+        this._kpiDialog = Fragment.load({
+            id: this.getView().getId(),
+            name: "managerdashboard.view.AssetList",
+            controller: this
+        }).then(function (d) {
+            that.getView().addDependent(d);
+            return d;
+        }).catch(function (e) {
+            that._kpiDialog = null;
+            sap.m.MessageBox.error("Error: " + (e && e.message ? e.message : e));
+            throw e;
+        });
+    }
+    this._kpiDialog.then(function (d) { d.open(); });
+},
+
+onCloseKpiDialog: function () {
+    this._kpiDialog.then(function (d) { d.close(); });
+},
+
+onKpiAssetPress: function (oEvent) {
+    var row = oEvent.getSource().getBindingContext("dash").getObject();
+    this._kpiDialog.then(function (d) { d.close(); });
+    var that = this;
+    setTimeout(function () { that.onAssetRowPress({ getSource: function () { return { getBindingContext: function () { return { getObject: function () { return row; } }; } }; } }); }, 300);
+},
+
+onAssetRowPress: function (oEvent) {
+    var that = this;
+    var row = oEvent.getSource().getBindingContext("dash").getObject();
+    var stateOf = { "In Stock": "Success", "Assigned": "Information", "Maintenance": "Warning", "Retired": "Error", "Archived": "None" };
+
+    // find full asset details from the already-loaded assets array
+    var asset = (this._assets || []).filter(function (a) {
+        return a.assetTag === row.assetTag;
+    })[0] || {};
+
+    this.getView().getModel("dash").setProperty("/assetDetail", {
+        assetTag:        asset.assetTag        || row.assetTag   || "",
+        model:           asset.model           || row.model      || "",
+        serialNumber:    asset.serialNumber    || "",
+        status:          asset.status          || "",
+        statusState:     stateOf[asset.status] || "None",
+        category:        asset._category       || "",
+        vendor:          asset.vendorName      || "",
+        holder:          asset._holder         || "",
+        department:      asset._department     || "",
+        location:        asset._location       || "",
+        purchaseDate:    this._date(asset.purchaseDate),
+        warrantyExpiry:  this._date(asset.warrantyExpiry),
+        firstDistribution: this._date(asset.firstDistributionDate)
+    });
+
+    if (!this._assetDetailDialog) {
+        this._assetDetailDialog = Fragment.load({
+            id: this.getView().getId(),
+            name: "managerdashboard.view.AssetDetail",
+            controller: this
+        }).then(function (d) {
+            that.getView().addDependent(d);
+            return d;
+        }).catch(function (e) {
+            that._assetDetailDialog = null;
+            sap.m.MessageBox.error("Could not open asset detail: " + (e && e.message ? e.message : e));
+            throw e;
+        });
+    }
+    this._assetDetailDialog.then(function (d) { d.open(); });
+},
+
+onCloseAssetDetail: function () {
+    this._assetDetailDialog.then(function (d) { d.close(); });
+},
+
+
+
+
 
         onMaintenancePress: function () {
             this._navigate("Maintenance", {});
@@ -364,6 +509,130 @@ sap.ui.define([
                 });
             }
             this._notifPopover.then(function (pop) { pop.openBy(source); });
+        },
+                // ================= REQUEST ASSET =================
+
+        _post: function (path, body) {
+            var url = this._serviceUrl();
+            return fetch(url, { method: "HEAD", headers: { "X-CSRF-Token": "Fetch" }, credentials: "same-origin" })
+                .then(function (r) { return r.headers.get("X-CSRF-Token") || ""; })
+                .catch(function () { return ""; })
+                .then(function (token) {
+                    var h = { "Content-Type": "application/json", Accept: "application/json" };
+                    if (token) { h["X-CSRF-Token"] = token; }
+                    return fetch(url + path, { method: "POST", headers: h, credentials: "same-origin", body: JSON.stringify(body) });
+                })
+                .then(function (r) {
+                    if (!r.ok) {
+                        return r.text().then(function (t) {
+                            var msg = t;
+                            try { msg = JSON.parse(t).error.message; } catch (e) { /* keep raw text */ }
+                            throw new Error(msg);
+                        });
+                    }
+                    return r.json();
+                });
+        },
+
+        _buildRequests: function (list) {
+            var that = this;
+            var stateOf = { Pending: "Warning", Approved: "Success", Rejected: "Error" };
+            this.getView().getModel("dash").setProperty("/requests", (list || []).map(function (r) {
+                return {
+                    requestNo: r.requestNo,
+                    employee: r.employeeName || "",
+                    asset: (r.assetTag || "") + (r.assetModel ? " - " + r.assetModel : ""),
+                    neededBy: that._date(r.neededBy),
+                    created: that._date(r.createdAt),
+                    status: r.status,
+                    state: stateOf[r.status] || "None",
+                    reason: r.rejectionReason || ""
+                };
+            }));
+        },
+
+        onRequestAsset: function () {
+            var that = this, m = this.getView().getModel("dash");
+            m.setProperty("/reqForm", { employeeId: "", assetId: "", justification: "", neededBy: null, error: "", busy: false, emp: {}, asset: {} });
+            m.setProperty("/reqOptions/employees", []);
+
+            this._availableAssets = this._assets.filter(function (a) { return a.status === "In Stock"; });
+            m.setProperty("/reqOptions/assets", this._availableAssets.map(function (a) {
+                return { key: a.asset_ID, text: a.assetTag + " - " + a.model };
+            }));
+
+            this._get("EmployeeLookupSrv?$select=employee_ID,fullName,email,phone,location,status,departmentName&$orderby=fullName&$top=1000")
+                .then(function (list) {
+                    that._employees = list.filter(function (e) { return String(e.status).toLowerCase() === "active"; });
+                    m.setProperty("/reqOptions/employees", that._employees.map(function (e) {
+                        return { key: e.employee_ID, text: e.fullName };
+                    }));
+                }).catch(function (e) {
+                    m.setProperty("/reqForm/error", that._t("reqFailed", [e.message]));
+                });
+
+                       if (!this._reqDialog) {
+                this._reqDialog = Fragment.load({
+                    id: this.getView().getId(),
+                    name: "managerdashboard.view.RequestAsset",
+                    controller: this
+                }).then(function (d) {
+                    that.getView().addDependent(d);
+                    return d;
+                }).catch(function (e) {
+                    that._reqDialog = null;
+                    sap.m.MessageBox.error("Could not open the request dialog:\n" + (e && e.message ? e.message : e));
+                    throw e;
+                });
+            }
+            this._reqDialog.then(function (d) { d.open(); }).catch(function () { /* already shown */ });
+        },
+
+        onRequestEmployeeChange: function (oEvent) {
+            var id = oEvent.getSource().getSelectedKey();
+            var e = (this._employees || []).filter(function (x) { return x.employee_ID === id; })[0] || {};
+            this.getView().getModel("dash").setProperty("/reqForm/emp", {
+                name: e.fullName || "", email: e.email || "", phone: e.phone || "",
+                department: e.departmentName || "", location: e.location || ""
+            });
+        },
+
+        onRequestAssetChange: function (oEvent) {
+            var id = oEvent.getSource().getSelectedKey();
+            var a = (this._availableAssets || []).filter(function (x) { return x.asset_ID === id; })[0] || {};
+            this.getView().getModel("dash").setProperty("/reqForm/asset", {
+                category: a._category || "", serial: a.serialNumber || ""
+            });
+        },
+
+        onSubmitRequest: function () {
+            var that = this, m = this.getView().getModel("dash"), f = m.getProperty("/reqForm");
+            m.setProperty("/reqForm/error", "");
+            if (!f.employeeId || !f.assetId) {
+                m.setProperty("/reqForm/error", this._t("reqSelectBoth"));
+                return;
+            }
+            var body = {
+                employee_employee_ID: f.employeeId,
+                asset_asset_ID: f.assetId,
+                justification: f.justification || null
+            };
+            if (f.neededBy) { body.neededBy = iso(f.neededBy); }
+
+            m.setProperty("/reqForm/busy", true);
+            this._post("AssetRequestSrv", body).then(function (created) {
+                MessageToast.show(that._t("reqSent", [created.requestNo || ""]));
+                that._reqDialog.then(function (d) { d.close(); });
+                that._load();
+            }).catch(function (e) {
+                m.setProperty("/reqForm/error", that._t("reqFailed", [e.message]));
+            }).finally(function () {
+                m.setProperty("/reqForm/busy", false);
+            });
+        },
+
+        onCancelRequest: function () {
+            this._reqDialog.then(function (d) { d.close(); });
         },
 
         // FR-023 (revised): share the current report as an in-app notification instead of email.

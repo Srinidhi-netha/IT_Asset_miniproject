@@ -4,24 +4,9 @@
       "auth": {
         "kind": "mocked",
         "users": {
-          "admin": {
-            "password": "admin",
-            "roles": [
-              "Admin"
-            ]
-          },
-          "manager": {
-            "password": "manager",
-            "roles": [
-              "Manager"
-            ]
-          },
-          "john.smith@company.com": {
-            "password": "user",
-            "roles": [
-              "User"
-            ]
-          },
+          "srinidhipaladugu24@gmail.com": { "password": "1", "roles": ["Admin"] },
+          "bob@company.com":              { "password": "1", "roles": ["Manager"] },
+          "alice@company.com":            { "password": "1", "roles": ["User"] },
           "alice": false,
           "bob": false,
           "carol": false,
@@ -38,33 +23,9 @@
       "auth": {
         "kind": "mocked",
         "users": {
-          "admin": {
-            "password": "admin",
-            "roles": [
-              "Admin"
-            ]
-          },
-          "manager": {
-            "password": "manager",
-            "roles": [
-              "Manager"
-            ]
-          },
-          "john.smith@company.com": {
-            "password": "user",
-            "roles": [
-              "User"
-            ]
-          },
-          "alice": false,
-          "bob": false,
-          "carol": false,
-          "dave": false,
-          "erin": false,
-          "fred": false,
-          "me": false,
-          "yves": false,
-          "*": false
+          "srinidhipaladugu24@gmail.com": { "password": "1", "roles": ["Admin"] },
+          "bob@company.com":              { "password": "1", "roles": ["Manager"] },
+          "alice@company.com":            { "password": "1", "roles": ["User"] }
         }
       }
     },
@@ -73,5 +34,3 @@
     }
   }
 }
- 
- 

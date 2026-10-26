@@ -111,3 +111,27 @@ entity ArchiveRecords : managed {
 }
 
 
+entity AssetRequests {
+  key request_ID  : UUID;
+      requestNo       : String(20);
+      employee        : Association to Employees;
+      asset           : Association to Assets;
+      justification   : String(300);
+      neededBy        : Date;
+      status          : String(20) default 'Pending';
+      requestedBy     : String(120);
+      createdAt       : Timestamp;
+      decidedBy       : String(120);
+      decidedAt       : Timestamp;
+      rejectionReason : String(200);
+}
+
+entity Notifications {
+  key notification_ID : UUID;
+      recipientEmail  : String(120);
+      title           : String(100);
+      message         : String(300);
+      request         : Association to AssetRequests;
+      isRead          : Boolean default false;
+      createdAt       : Timestamp;
+}

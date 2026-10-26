@@ -20,6 +20,18 @@
     "watch-managerdashboard": "cds watch --open managerdashboard/index.html?sap-ui-xx-viewCache=false --livereload false",
     "watch-userdashboard": "cds watch --open userdashboard/index.html?sap-ui-xx-viewCache=false --livereload false"
   },
+  "cds": {
+  "requires": {
+    "auth": {
+      "kind": "mocked",
+      "users": {
+  "srinidhipaladugu24@gmail.com": { "password": "1", "roles": ["Admin"] },
+  "bob@company.com":              { "password": "1", "roles": ["Manager"] },
+  "alice@company.com":            { "password": "1", "roles": ["User"] }
+}
+    }
+  }
+},
   "dependencies": {
     "@cap-js/hana": "^3.1.2",
     "@sap/cds": "^10",

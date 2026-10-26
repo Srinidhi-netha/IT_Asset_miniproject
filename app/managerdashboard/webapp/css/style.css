@@ -1,7 +1,210 @@
+/* ── Brand tokens matching the User dashboard ─────────────────── */
+:root {
+    --am-dark:    #0a2342;
+    --am-mid:     #1a7a4a;
+    --am-accent1: #2196f3;
+    --am-accent2: #d4d000;
+    --am-green:   #614caf;
+    --am-purple:  #27b077;
+    --am-white:   #ffffff;
+    --am-bg:      #f5f7fa;
+}
+
+/* ── Page background ───────────────────────────────────────────── */
+.mgrPage .sapMPageBgStandard,
+.mgrPage {
+    background: var(--am-bg) !important;
+}
+
+/* ── Hero banner (same dark gradient as user dashboard) ────────── */
+.mgrHero {
+    background: linear-gradient(135deg, var(--am-dark) 0%, var(--am-mid) 60%, var(--am-accent1) 100%);
+    border-radius: 0.75rem;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1rem;
+    color: var(--am-white);
+}
+.mgrHero .sapMTitle,
+.mgrHero .sapMText,
+.mgrHero .sapMLabel {
+    color: var(--am-white) !important;
+}
+.mgrHeroAvatar {
+    background: rgba(255,255,255,0.2) !important;
+    color: var(--am-white) !important;
+    margin-right: 1rem;
+}
+.mgrHeroBadge {
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 1rem;
+    padding: 0.25rem 0.75rem;
+    color: var(--am-white);
+    font-size: 0.8rem;
+}
+
+/* ── KPI tiles with colored top border ─────────────────────────── */
+.mgrTile {
+    border-radius: 0.75rem !important;
+    border-top: 3px solid var(--am-accent1) !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08) !important;
+}
+.mgrTile.green  { border-top-color: var(--am-green)  !important; }
+.mgrTile.purple { border-top-color: var(--am-purple) !important; }
+.mgrTile.teal   { border-top-color: var(--am-accent2)!important; }
+
+/* ── Section panels ─────────────────────────────────────────────── */
+.mgrPanel .sapMPanelHdr {
+    font-weight: 600;
+    color: var(--am-dark);
+    border-left: 4px solid var(--am-accent1);
+    padding-left: 0.75rem;
+}
+
+/* ── Eyebrow text ───────────────────────────────────────────────── */
+.mgrEyebrow {
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.75);
+    font-weight: 600;
+}
 .mgrEyebrow {
     font-size: 0.75rem;
     font-weight: bold;
     letter-spacing: 0.08em;
     text-transform: uppercase;
     color: var(--sapContent_LabelColor);
+}
+/* Overall dashboard readability */
+.mgrPage,
+.mgrPage .sapMText,
+.mgrPage .sapMLabel,
+.mgrPage .sapMTitle {
+    font-size: 1rem;
+}
+
+/* Main page spacing */
+.mgrPage .sapMPageEnableScrolling > section {
+    padding: 1rem !important;
+}
+
+/* Hero banner */
+.mgrHero {
+    min-height: 7rem;
+    padding: 1.5rem !important;
+    border-radius: 0.75rem;
+    box-sizing: border-box;
+}
+
+.mgrEyebrow {
+    font-size: 0.9rem !important;
+    font-weight: 700;
+}
+
+/* Bigger KPI cards */
+.mgrTile {
+    width: 13rem !important;
+    min-width: 13rem !important;
+    height: 9rem !important;
+    margin: 0.5rem !important;
+    box-sizing: border-box;
+}
+
+.mgrTile .sapMGTHeaderText {
+    font-size: 1rem !important;
+}
+
+.mgrTile .sapMGTSubHdrTxt {
+    font-size: 0.8rem !important;
+}
+
+.mgrTile .sapMNCValue {
+    font-size: 2rem !important;
+}
+
+/* More space around charts */
+.mgrPage .sapMPanel {
+    margin-bottom: 1rem;
+}
+
+.mgrPage .sapMPanelHdr {
+    font-size: 1rem !important;
+    font-weight: 700;
+}
+
+/* Tables should be easier to read */
+.mgrPage .sapMListTblCell,
+.mgrPage .sapMListTblHeaderCell {
+    padding: 0.75rem !important;
+}
+
+.mgrPage .sapMListTblCell .sapMText,
+.mgrPage .sapMListTblHeaderCell .sapMText {
+    font-size: 0.9rem !important;
+}
+
+/* Read-only badge */
+.mgrHeroBadge {
+    font-size: 0.85rem !important;
+    font-weight: 600;
+}
+
+/* Footer */
+.mgrFooterText {
+    color: #999;
+    font-size: 0.8rem !important;
+}
+/* Increase overall dashboard readability */
+.mgrPage .sapMText,
+.mgrPage .sapMLabel {
+    font-size: 1.15rem !important;
+}
+
+.mgrPage .sapMTitle {
+    font-size: 1.25rem !important;
+}
+
+/* Bigger KPI cards */
+.mgrTile {
+    width: 15rem !important;
+    min-width: 15rem !important;
+    height: 11rem !important;
+}
+
+.mgrTile .sapMNCValue {
+    font-size: 2.5rem !important;
+}
+
+/* Taller chart panels */
+.mgrPage .sapMPanel {
+    margin: 0.95rem !important;
+}
+
+.mgrPage .sapMPanelHdr {
+    font-size: 1.1rem !important;
+}
+
+/* Larger table rows */
+.mgrPage .sapMListTblCell,
+.mgrPage .sapMListTblHeaderCell {
+    padding: 1rem !important;
+}
+/* Chart panel appearance */
+.mgrPage .sapMPanel {
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+/* Chart panel headers */
+.mgrPage .sapMPanelHdr {
+    background: #eef4ff;
+    color: #17365d;
+    font-weight: 700;
+}
+
+/* Chart section spacing */
+.mgrPage .sapMPanelContent {
+    padding: 1rem;
 }

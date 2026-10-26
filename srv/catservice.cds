@@ -127,6 +127,46 @@ service CatalogService{
     entity OwnershipLedgerSrv as projection on database.OwnershipLedgers;
     entity MaintenanceRecordSrv as projection on database.MaintenanceRecords;
     entity ArchiveRecordSrv as projection on database.ArchiveRecords;
+        entity AssetRequestSrv as projection on database.AssetRequests actions {
+        action approve();
+        action reject(reason : String(200));
+    };
+
+    entity NotificationSrv as projection on database.Notifications;
+
+    // Read-only employee list for managers (no access to the full employee master data)
+    @readonly @cds.redirection.target: false
+    entity EmployeeLookupSrv as projection on database.Employees {
+        key employee_ID,
+            fullName,
+            email,
+            phone,
+            location,
+            status,
+            department.name as departmentName
+    };
+
+    // Flattened view of requests for the dashboards
+    @readonly @cds.redirection.target: false
+    entity AssetRequestOverviewSrv as projection on database.AssetRequests {
+        key request_ID,
+            requestNo,
+            status,
+            justification,
+            neededBy,
+            requestedBy,
+            createdAt,
+            decidedAt,
+            rejectionReason,
+            employee.employee_ID     as employeeId,
+            employee.fullName        as employeeName,
+            employee.email           as employeeEmail,
+            employee.location        as employeeLocation,
+            employee.department.name as employeeDepartment,
+            asset.asset_ID           as assetId,
+            asset.assetTag           as assetTag,
+            asset.model              as assetModel
+    };
 
     // Read-only views for the dashboards: names are flattened in, so managers and users
     // need no access to the employee, department, category and vendor master data.
@@ -150,36 +190,39 @@ service CatalogService{
     };
 
     @readonly @cds.redirection.target: false
-    entity AssetHistorySrv as projection on database.OwnershipLedgers {
-        key ledger_ID,
-            asset.asset_ID                 as assetId,
-            asset.assetTag                 as assetTag,
-            asset.currentHolder.email      as holderEmail,
-            action,
-            transitionDate,
-            fromEmployee.employee_ID       as fromId,
-            fromEmployee.fullName          as fromName,
-            toEmployee.employee_ID         as toId,
-            toEmployee.fullName            as toName,
-            notes,
-            createdAt
-    };
-
+entity AssetHistorySrv as projection on database.OwnershipLedgers {
+    key ledger_ID,
+        asset.asset_ID           as assetId,
+        asset.assetTag           as assetTag,
+        action,
+        transitionDate,
+        fromEmployee.employee_ID as fromId,
+        fromEmployee.fullName    as fromName,
+        fromEmployee.email       as fromEmail,
+        toEmployee.employee_ID   as toId,
+        toEmployee.fullName      as toName,
+        toEmployee.email         as toEmail,
+        notes,
+        createdAt
+};
     @readonly @cds.redirection.target: false
     entity MaintenanceOverviewSrv as projection on database.MaintenanceRecords {
         key maintenance_ID,
             asset.asset_ID                 as assetId,
             asset.assetTag                 as assetTag,
             asset.currentHolder.email      as holderEmail,
+            reportedBy.email          as reporterEmail,
             type,
             status,
             outcome,
-            cost,
             reportedDate,
             completedDate,
             serviceVendor.name             as vendorName
     };
-
+annotate CatalogService.MaintenanceOverviewSrv with @(restrict: [
+    { grant: 'READ', to: ['Admin', 'Manager'] },
+    { grant: 'READ', to: 'User', where: 'holderEmail = $user or reporterEmail = $user' }
+]);
     // The signed-in user's own employee record (matched by e-mail / login name)
     @readonly @cds.redirection.target: false
     entity MyProfileSrv as projection on database.Employees {
@@ -448,10 +491,7 @@ annotate CatalogService.AssetHistorySrv with @(restrict: [
     { grant: 'READ', to: 'User', where: 'holderEmail = $user' }
 ]);
 
-annotate CatalogService.MaintenanceOverviewSrv with @(restrict: [
-    { grant: 'READ', to: ['Admin', 'Manager'] },
-    { grant: 'READ', to: 'User', where: 'holderEmail = $user' }
-]);
+
 
 annotate CatalogService.MyProfileSrv with @(restrict: [
     { grant: 'READ', to: ['Admin', 'Manager', 'User'], where: 'email = $user' }
@@ -488,3 +528,21 @@ annotate CatalogService.AssetSrv with {
     status        @readonly;
     currentHolder @readonly;
 };
+annotate CatalogService.AssetRequestSrv with @(restrict: [
+    { grant: '*',      to: 'Admin' },
+    { grant: 'CREATE', to: 'Manager' },
+    { grant: 'READ',   to: 'Manager', where: 'requestedBy = $user' }
+]);
+
+annotate CatalogService.AssetRequestOverviewSrv with @(restrict: [
+    { grant: 'READ', to: 'Admin' },
+    { grant: 'READ', to: 'Manager', where: 'requestedBy = $user' }
+]);
+
+annotate CatalogService.EmployeeLookupSrv with @(restrict: [
+    { grant: 'READ', to: ['Admin', 'Manager'] }
+]);
+
+annotate CatalogService.NotificationSrv with @(restrict: [
+    { grant: ['READ', 'UPDATE'], to: ['Admin', 'Manager', 'User'], where: 'recipientEmail = $user' }
+]);

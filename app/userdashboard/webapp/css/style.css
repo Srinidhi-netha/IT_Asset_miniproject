@@ -1,16 +1,207 @@
+/* ==========================================================================
+   USER DASHBOARD — PROFESSIONAL & COLORFUL ENTERPRISE STYLING
+   ========================================================================== */
+
+/* Overall Page Background */
+.myDashboardPage .sapMPageBgStandard {
+    background: #f1f5f9 !important;
+}
+
+.dashboardContentWrapper {
+    max-width: 1400px;
+    margin: 0 auto !important;
+}
+
+/* Page Header Text */
 .myEyebrow {
-    font-size: 0.75rem;
-    font-weight: bold;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--sapContent_LabelColor);
+    font-size: 0.75rem !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.08em !important;
+    color: #0284c7 !important;
 }
 
-.myWelcome.sapMPanel > .sapMPanelContent {
-    background: var(--sapInformationBackgroundColor);
+.myPageTitle {
+    font-size: 1.85rem !important;
+    font-weight: 800 !important;
+    color: #0f172a !important;
+    letter-spacing: -0.02em !important;
 }
 
-.myTileText.sapMText {
-    font-size: 1.25rem;
-    padding-top: 0.5rem;
+.myPageSubtitle {
+    color: #64748b !important;
+    font-size: 0.9rem !important;
+}
+
+/* ==========================================================================
+   1. ENLARGED WELCOME HERO BLOCK
+   ========================================================================== */
+.myWelcomeCard {
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0369a1 100%) !important;
+    border-radius: 20px !important;
+    padding: 2.25rem 2.5rem !important;
+    min-height: 120px !important;
+    box-shadow: 0 12px 30px -5px rgba(15, 23, 42, 0.35) !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+}
+
+.myAvatar {
+    width: 4.2rem !important;
+    height: 4.2rem !important;
+    border: 3.5px solid #38bdf8 !important;
+    box-shadow: 0 0 18px rgba(56, 189, 248, 0.6) !important;
+    background: linear-gradient(135deg, #0284c7 0%, #d3e2eb 100%) !important;
+    color: #ffffff !important;
+    font-weight: 800 !important;
+    font-size: 1.5rem !important;
+}
+
+.myWelcomeTitle {
+    color: #ffffff !important;
+    font-weight: 800 !important;
+    font-size: 1.85rem !important;
+    letter-spacing: -0.01em !important;
+}
+
+.myWelcomeSubtitle {
+    color: #cbd5e1 !important;
+    font-size: 1.05rem !important;
+    font-weight: 500 !important;
+}
+
+.myBadge {
+    background: rgba(255, 255, 255, 0.15) !important;
+    backdrop-filter: blur(8px) !important;
+    padding: 8px 18px !important;
+    border-radius: 9999px !important;
+    border: 1px solid rgba(255, 255, 255, 0.25) !important;
+}
+
+.myBadgeIcon {
+    color: #38bdf8 !important;
+    font-size: 1rem !important;
+}
+
+.myBadgeText {
+    color: #ffffff !important;
+    font-size: 0.9rem !important;
+    font-weight: 600 !important;
+}
+
+/* ==========================================================================
+   2. COLORFUL GENERIC TILES (BLUE, GREEN, PURPLE)
+   ========================================================================== */
+.kpiDeck {
+    display: flex;
+    gap: 1.25rem;
+}
+
+/* Base Tile Container */
+.kpiTile {
+    width: 250px !important;
+    height: 140px !important;
+    border-radius: 16px !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05) !important;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    overflow: hidden !important;
+}
+
+.kpiTile:hover {
+    transform: translateY(-4px) !important;
+    box-shadow: 0 12px 24px -4px rgba(15, 23, 42, 0.15) !important;
+}
+
+.kpiTile .sapMGTHdrTxt {
+    font-size: 0.8rem !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.05em !important;
+}
+
+.kpiTile .sapMNCValue {
+    font-size: 2.6rem !important;
+    font-weight: 800 !important;
+}
+
+/* Card 1: Assigned to Me (Sapphire Blue) */
+.kpiTileBlue {
+    background: linear-gradient(135deg, #ffffff 40%, #eff6ff 100%) !important;
+    border: 1px solid #bfdbfe !important;
+    border-top: 5px solid #2563eb !important;
+}
+.kpiTileBlue .sapMGTHdrTxt { color: #1e40af !important; }
+.kpiTileBlue .sapMNCValue { color: #1d4ed8 !important; }
+.kpiTileBlue .sapMNCValueDesc, .kpiTileBlue .sapUiIcon { color: #2563eb !important; }
+
+/* Card 2: Open Requests (Emerald Green) */
+.kpiTileGreen {
+    background: linear-gradient(135deg, #ffffff 40%, #f0fdf4 100%) !important;
+    border: 1px solid #bbf7d0 !important;
+    border-top: 5px solid #16a34a !important;
+}
+.kpiTileGreen .sapMGTHdrTxt { color: #166534 !important; }
+.kpiTileGreen .sapMNCValue { color: #15803d !important; }
+.kpiTileGreen .sapMNCValueDesc, .kpiTileGreen .sapUiIcon { color: #16a34a !important; }
+
+/* Card 3: Last Assignment (Royal Purple) */
+.kpiTilePurple {
+    background: linear-gradient(135deg, #ffffff 40%, #faf5ff 100%) !important;
+    border: 1px solid #e9d5ff !important;
+    border-top: 5px solid #9333ea !important;
+}
+.kpiTilePurple .sapMGTHdrTxt { color: #6b21a8 !important; }
+
+.kpiTileDateText {
+    font-size: 1.35rem !important;
+    font-weight: 800 !important;
+    color: #7e22ce !important;
+    margin-top: 0.5rem !important;
+}
+
+/* ==========================================================================
+   3. FILTERS & TABLE SECTION
+   ========================================================================== */
+.myFilterPanel,
+.myAssetsTable {
+    border-radius: 14px !important;
+    border: 1px solid #e2e8f0 !important;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.03) !important;
+    background: #ffffff !important;
+}
+
+.myFilterToolbar,
+.myTableToolbar {
+    background: #ffffff !important;
+    border-bottom: 1px solid #f1f5f9 !important;
+}
+
+.filterToolbarTitle,
+.myTableTitle {
+    font-weight: 700 !important;
+    color: #0f172a !important;
+}
+
+.myColHdr {
+    font-size: 0.75rem !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    color: #475569 !important;
+}
+
+.myTableRow:hover {
+    background-color: #f8fafc !important;
+}
+
+.myAssetIdentifier .sapMTextLineClamp {
+    color: #0284c7 !important;
+    font-weight: 700 !important;
+}
+
+/* Status Pill Badge */
+.myStatusBadge {
+    display: inline-flex !important;
+    padding: 3px 10px !important;
+    border-radius: 9999px !important;
+    font-weight: 600 !important;
+    font-size: 0.8rem !important;
 }

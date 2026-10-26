@@ -1,8 +1,8 @@
-const {startswith} = require("@cap-js/hana/lib/cql-functions");
-const cds = require("@sap/cds-dk/lib/cds");
+const cds = require("@sap/cds");
 const { randomUUID } = require('crypto');
 
 module.exports = cds.service.impl(async function () {
+
     const {DepartmentSrv} = this.entities;
     const {EmployeeSrv} = this.entities;
     const {AssetCategorieSrv} = this.entities;
@@ -11,6 +11,18 @@ module.exports = cds.service.impl(async function () {
     const {OwnershipLedgerSrv} = this.entities;
     const {MaintenanceRecordSrv} = this.entities;
     const {ArchiveRecordSrv} = this.entities;
+        const {AssetRequestSrv} = this.entities;
+    const { Employees: EmpDb, Assets: AssetDb, AssetRequests: ReqDb, Notifications: NotifDb } = cds.entities('It_Asset');
+    this.before(['CREATE', 'UPDATE'], EmployeeSrv, (req) => {
+    if (req.data.email) req.data.email = req.data.email.trim().toLowerCase();
+});
+this.before('READ', '*', (req) => {
+    console.log('USER ID:', req.user.id, '| ENTITY:', req.target?.name);
+});
+
+this.before(['createEmployee', 'updateEmployee'], (req) => {
+    if (req.data.email) req.data.email = req.data.email.trim().toLowerCase();
+});
 
         this.on('assign', AssetSrv, async (req) => {
         const key = req.params[0];
@@ -111,6 +123,7 @@ module.exports = cds.service.impl(async function () {
             maintenance_ID: randomUUID(),
             asset_asset_ID: assetId,
             type: typeValue,
+             reportedBy_employee_ID: asset.currentHolder_employee_ID || null,
             serviceVendor_vendor_ID: vendor || null,
             reportedDate: today,
             status: 'Open',
@@ -643,5 +656,155 @@ module.exports = cds.service.impl(async function () {
          
             })
 
-            
+              // =====================  ASSET REQUESTS  =====================
+
+    const notify = (tx, rows) => tx.run(INSERT.into(NotifDb).entries(rows.map(r => ({
+        notification_ID: randomUUID(),
+        isRead: false,
+        createdAt: new Date().toISOString(),
+        ...r
+    }))));
+
+    // Manager creates a request
+    this.before('CREATE', AssetRequestSrv, async (req) => {
+        const d = req.data;
+        const tx = cds.tx(req);
+
+        if (!d.employee_employee_ID || !d.asset_asset_ID) {
+            return req.error(400, 'Please select an employee and an asset.');
+        }
+
+        const emp = await tx.run(SELECT.one.from(EmpDb).where({ employee_ID: d.employee_employee_ID }));
+        if (!emp) return req.error(404, 'Employee not found.');
+        if (String(emp.status).toLowerCase() !== 'active') {
+            return req.error(409, `${emp.fullName} is not an active employee.`);
+        }
+
+        const asset = await tx.run(SELECT.one.from(AssetDb).where({ asset_ID: d.asset_asset_ID }));
+        if (!asset) return req.error(404, 'Asset not found.');
+        if (asset.status !== 'In Stock') {
+            return req.error(409, `Only "In Stock" assets can be requested. This asset is "${asset.status}".`);
+        }
+
+        const pending = await tx.run(SELECT.one.from(ReqDb).where({ asset_asset_ID: d.asset_asset_ID, status: 'Pending' }));
+        if (pending) return req.error(409, `This asset already has a pending request (${pending.requestNo}).`);
+
+        const row = await tx.run(SELECT.one.from(ReqDb).columns('count(*) as n'));
+        d.request_ID = d.request_ID || randomUUID();
+        d.requestNo = `REQ-${new Date().getFullYear()}-${String((row.n || 0) + 1).padStart(4, '0')}`;
+        d.status = 'Pending';
+        d.requestedBy = req.user.id;
+        d.createdAt = new Date().toISOString();
+        delete d.decidedBy;
+        delete d.decidedAt;
+        delete d.rejectionReason;
+    });
+
+    // Persist an in-app notification for configured Admin users after the request row exists.
+    // In deployed identity setups without a configured user list, the Admin dashboard's live pending count remains the alert.
+    this.after('CREATE', AssetRequestSrv, async (created, req) => {
+        const d = req.data || created || {};
+        const authUsers = (cds.env.requires.auth && cds.env.requires.auth.users) || {};
+        const adminEmails = Object.keys(authUsers).filter(email => {
+            const roles = (authUsers[email] && authUsers[email].roles) || [];
+            return Array.isArray(roles) && roles.includes('Admin');
+        });
+        if (!adminEmails.length || !d.request_ID) return;
+
+        const tx = cds.tx(req);
+        const request = await tx.run(SELECT.one.from(ReqDb).where({ request_ID: d.request_ID }));
+        if (!request) return;
+        const emp = await tx.run(SELECT.one.from(EmpDb).where({ employee_ID: request.employee_employee_ID }));
+        const asset = await tx.run(SELECT.one.from(AssetDb).where({ asset_ID: request.asset_asset_ID }));
+        const summary = `Request ${request.requestNo}: ${emp ? emp.fullName : 'Employee'} requested ${asset ? (asset.assetTag || asset.model) : 'an asset'}.`;
+        await notify(tx, adminEmails.map(recipientEmail => ({
+            recipientEmail,
+            request_request_ID: request.request_ID,
+            title: 'New asset request',
+            message: summary
+        })));
+    });
+
+    // Admin approves
+    this.on('approve', AssetRequestSrv, async (req) => {
+        const key = req.params[0];
+        const requestId = (typeof key === 'object') ? key.request_ID : key;
+        const tx = cds.tx(req);
+
+        const r = await tx.run(SELECT.one.from(ReqDb).where({ request_ID: requestId }));
+        if (!r) return req.error(404, 'Request not found.');
+        if (r.status !== 'Pending') return req.error(409, `This request is already ${r.status}.`);
+
+        const asset = await tx.run(SELECT.one.from(AssetSrv).where({ asset_ID: r.asset_asset_ID }));
+        if (!asset) return req.error(404, 'Asset not found.');
+        if (asset.status !== 'In Stock') {
+            return req.error(409, `This asset is now "${asset.status}", not "In Stock". Please reject this request.`);
+        }
+
+        const emp = await tx.run(SELECT.one.from(EmployeeSrv).where({ employee_ID: r.employee_employee_ID }));
+        if (!emp) return req.error(404, 'Employee not found.');
+        if (String(emp.status).toLowerCase() !== 'active') {
+            return req.error(409, `${emp.fullName} is not an active employee.`);
+        }
+
+        const today = new Date().toISOString().slice(0, 10);
+
+        await tx.run(UPDATE(AssetSrv).set({
+            status: 'Assigned',
+            currentHolder_employee_ID: emp.employee_ID,
+            firstDistributionDate: asset.firstDistributionDate || today
+        }).where({ asset_ID: asset.asset_ID }));
+
+        await tx.run(INSERT.into(OwnershipLedgerSrv).entries({
+            ledger_ID: randomUUID(),
+            asset_asset_ID: asset.asset_ID,
+            fromEmployee_employee_ID: null,
+            toEmployee_employee_ID: emp.employee_ID,
+            action: 'Assign',
+            transitionDate: today,
+            notes: `Approved request ${r.requestNo}`
+        }));
+
+        await tx.run(UPDATE(AssetRequestSrv).set({
+            status: 'Approved',
+            decidedBy: req.user.id,
+            decidedAt: new Date().toISOString()
+        }).where({ request_ID: requestId }));
+
+        await notify(tx, [
+            { recipientEmail: r.requestedBy, request_request_ID: requestId,
+              title: 'Request approved',
+              message: `Asset ${asset.assetTag || asset.asset_ID} (${asset.model}) has been assigned to ${emp.fullName}.` },
+            { recipientEmail: emp.email, request_request_ID: requestId,
+              title: 'Asset assigned to you',
+              message: `Asset ${asset.assetTag || asset.asset_ID} (${asset.model}) has been assigned to you.` }
+        ]);
+    });
+
+    // Admin rejects (reason is compulsory)
+    this.on('reject', AssetRequestSrv, async (req) => {
+        const key = req.params[0];
+        const requestId = (typeof key === 'object') ? key.request_ID : key;
+        const reason = String(req.data.reason || '').trim();
+        const tx = cds.tx(req);
+
+        if (!reason) return req.error(400, 'Please enter a reason for rejection.');
+
+        const r = await tx.run(SELECT.one.from(ReqDb).where({ request_ID: requestId }));
+        if (!r) return req.error(404, 'Request not found.');
+        if (r.status !== 'Pending') return req.error(409, `This request is already ${r.status}.`);
+
+        await tx.run(UPDATE(AssetRequestSrv).set({
+            status: 'Rejected',
+            rejectionReason: reason,
+            decidedBy: req.user.id,
+            decidedAt: new Date().toISOString()
+        }).where({ request_ID: requestId }));
+
+        await notify(tx, [
+            { recipientEmail: r.requestedBy, request_request_ID: requestId,
+              title: 'Request rejected',
+              message: `Request ${r.requestNo} was rejected. Reason: ${reason}` }
+        ]);
+    });  
 })

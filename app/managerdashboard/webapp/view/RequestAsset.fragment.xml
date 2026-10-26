@@ -1,0 +1,49 @@
+<core:FragmentDefinition xmlns="sap.m" xmlns:core="sap.ui.core">
+    <Dialog id="requestDialog" title="{i18n>reqDialogTitle}" contentWidth="34rem"
+        draggable="true" resizable="true" busy="{dash>/reqForm/busy}" busyIndicatorDelay="0">
+        <content>
+            <VBox class="sapUiSmallMargin">
+
+                <MessageStrip text="{dash>/reqForm/error}" type="Error" showIcon="true"
+                    visible="{= !!${dash>/reqForm/error} }" class="sapUiSmallMarginBottom"/>
+
+                <Label text="{i18n>reqEmployee}" required="true"/>
+                <ComboBox selectedKey="{dash>/reqForm/employeeId}" items="{dash>/reqOptions/employees}"
+                    selectionChange=".onRequestEmployeeChange" width="100%" placeholder="{i18n>reqEmployeePlaceholder}">
+                    <core:Item key="{dash>key}" text="{dash>text}"/>
+                </ComboBox>
+
+                <VBox visible="{= !!${dash>/reqForm/employeeId} }" class="sapUiTinyMarginTop sapUiSmallMarginBottom">
+                    <Text text="{= ${i18n>reqEmail} + ': ' + ${dash>/reqForm/emp/email} }"/>
+                    <Text text="{= ${i18n>reqPhone} + ': ' + ${dash>/reqForm/emp/phone} }"/>
+                    <Text text="{= ${i18n>reqDepartment} + ': ' + ${dash>/reqForm/emp/department} }"/>
+                    <Text text="{= ${i18n>reqLocation} + ': ' + ${dash>/reqForm/emp/location} }"/>
+                </VBox>
+
+                <Label text="{i18n>reqAsset}" required="true" class="sapUiSmallMarginTop"/>
+                <ComboBox selectedKey="{dash>/reqForm/assetId}" items="{dash>/reqOptions/assets}"
+                    selectionChange=".onRequestAssetChange" width="100%" placeholder="{i18n>reqAssetPlaceholder}">
+                    <core:Item key="{dash>key}" text="{dash>text}"/>
+                </ComboBox>
+
+                <VBox visible="{= !!${dash>/reqForm/assetId} }" class="sapUiTinyMarginTop sapUiSmallMarginBottom">
+                    <Text text="{= ${i18n>reqCategory} + ': ' + ${dash>/reqForm/asset/category} }"/>
+                    <Text text="{= ${i18n>reqSerial} + ': ' + ${dash>/reqForm/asset/serial} }"/>
+                </VBox>
+
+                <Label text="{i18n>reqJustification}" class="sapUiSmallMarginTop"/>
+                <TextArea value="{dash>/reqForm/justification}" rows="3" maxLength="300" width="100%"/>
+
+                <Label text="{i18n>reqNeededBy}" class="sapUiSmallMarginTop"/>
+                <DatePicker dateValue="{dash>/reqForm/neededBy}" width="12rem"/>
+
+            </VBox>
+        </content>
+        <beginButton>
+            <Button text="{i18n>reqSend}" type="Emphasized" press=".onSubmitRequest"/>
+        </beginButton>
+        <endButton>
+            <Button text="{i18n>reqCancel}" press=".onCancelRequest"/>
+        </endButton>
+    </Dialog>
+</core:FragmentDefinition>
